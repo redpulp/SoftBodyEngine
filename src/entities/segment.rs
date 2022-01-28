@@ -17,7 +17,7 @@ impl Segment {
 	}
 
 	fn half_segment(&self) -> Vec2 {
-		Vec2::new(self.x2 - self.x1, self.y2 - self.y1)
+		vec2(self.x2 - self.x1, self.y2 - self.y1)
 	}
 
 	// Get the projection of a point on the segment
@@ -25,7 +25,7 @@ impl Segment {
 	// the closest extremity to the point if no projection exists
 	pub fn get_projection(&self, point: &Vec2, force: bool) -> Option<Vec2> {
 		let e1 = self.half_segment();
-		let e2 = Vec2::new(point[0] - self.x1, point[1] - self.y1);
+		let e2 = vec2(point[0] - self.x1, point[1] - self.y1);
 		let rect_area = e1.dot(e1);
 		let value = e1.dot(e2);
 		if value > 0. && value < rect_area {
@@ -33,17 +33,17 @@ impl Segment {
 
 			// Solving for vertical and horizontal segments
 			if slope.abs() == f32::INFINITY {
-				return Some(Vec2::new(self.x1, point[1]));
+				return Some(vec2(self.x1, point[1]));
 			}
 			if slope == 0. {
-				return Some(Vec2::new(point[0], self.y1));
+				return Some(vec2(point[0], self.y1));
 			}
 
 			// Solving for diagonal segments
 			let perpendicular_intercept = point[1] + (point[0] / slope);
 			let x_intersection =
 				(slope * (perpendicular_intercept - self.intercept())) / (1. + slope * slope);
-			Some(Vec2::new(
+			Some(vec2(
 				x_intersection,
 				(slope * x_intersection) + self.intercept(),
 			))
@@ -57,8 +57,8 @@ impl Segment {
 	}
 
 	pub fn get_extremity_projection(&self, point: &Vec2) -> Vec2 {
-		let point1 = Vec2::new(self.x1, self.y1);
-		let point2 = Vec2::new(self.x2, self.y2);
+		let point1 = vec2(self.x1, self.y1);
+		let point2 = vec2(self.x2, self.y2);
 		if (point1 - point.clone()).length() < (point2 - point.clone()).length() {
 			point1
 		} else {
