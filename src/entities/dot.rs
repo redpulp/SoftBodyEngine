@@ -3,7 +3,7 @@ use macroquad::prelude::*;
 
 const DELTA_T: f32 = 0.1;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Dot {
 	pos: Vec2,
 	prev_pos: Vec2,
