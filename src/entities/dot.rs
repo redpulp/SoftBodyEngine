@@ -24,22 +24,32 @@ impl Dot {
 			freeze: false,
 		}
 	}
+	
+	pub fn is_out_of_bounds(&self) -> bool {
+		(self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
+	}
+
+	fn add_gravity(&mut self) {
+		self.force += vec2(0., 9.8 * self.mass);
+	}
 
 	pub fn update(&mut self) {
-		self.force = vec2(0., 9.8 * self.mass);
+		self.add_gravity();
 		if !self.freeze {
 			self.vel += (self.force * DELTA_T) / self.mass;
 			self.pos += self.vel * DELTA_T;
 		}
+		self.force = vec2(0., 0.);
 	}
 
 	fn push(&mut self, push_vec: &Vec2) {
+		// self.force += *push_vec;
 		self.vel += *push_vec;
 		self.pos += *push_vec;
 	}
 
 	pub fn draw(&self) {
-		macroquad::prelude::draw_circle(self.pos[0], self.pos[1], self.radius, YELLOW);
+		draw_circle(self.pos[0], self.pos[1], self.radius, YELLOW);
 	}
 
 	fn is_in_bounding_box(&self, polygon: &Polygon) -> bool {
@@ -50,7 +60,7 @@ impl Dot {
 			&& (self.pos[1] + self.radius) > min_ver
 	}
 
-	fn is_center_inside_polygon(&self, polygon: &Polygon) -> bool {
+	pub fn is_center_inside_polygon(&self, polygon: &Polygon) -> bool {
 		let counter = polygon
 			.segments()
 			.iter()
@@ -60,14 +70,18 @@ impl Dot {
 	}
 
 	// Gets the closest projection of the Dot on any segment of a Polygon
-	fn get_closest_projection(&self, polygon: &Polygon, force: bool) -> Vec2 {
+	fn get_closest_projection(&self, polygon: &Polygon) -> Vec2 {
 		let projections = polygon
 			.segments()
 			.iter()
-			.map(|segment| segment.get_projection(&self.pos, force))
+			.map(|segment| segment.get_projection(&self.pos))
 			.filter(|projection| projection.is_some())
-			.map(|projection| self.pos - projection.unwrap())
+			.map(|projection| projection.unwrap() - self.pos)
 			.collect::<Vec<Vec2>>();
+
+		projections.iter().for_each(|proj| {
+			draw_line(self.pos[0], self.pos[1], self.pos[0] + proj[0], self.pos[1] + proj[1], 2., RED);
+		});
 
 		projections.iter().fold(
 			vec2(f32::INFINITY, f32::INFINITY),
@@ -88,32 +102,21 @@ impl Dot {
 			return None;
 		}
 
-		if self.is_center_inside_polygon(polygon) {
-			return Some(self.get_closest_projection(polygon, false));
+		let closes_projection = self.get_closest_projection(polygon);
+		if closes_projection.length() < self.radius {
+			return Some(closes_projection - closes_projection.normalize()*self.radius)
 		}
 
-		// If the projection is inside the Dot, return a push vector to push it out
-		let closest_projection = self.get_closest_projection(polygon, true);
-		if closest_projection.length() < self.radius {
-			Some(
-				(closest_projection / closest_projection.length())
-					* (self.radius - closest_projection.length()),
-			)
-		} else {
-			None
-		}
+		None
 	}
 
 	pub fn handle_collision(&mut self, polygon: &Polygon) {
 		match self.get_push_vector(polygon) {
 			None => (),
-			Some(dot) => {
-				self.push(&dot);
+			Some(vector) => {
+				self.push(&vector);
 			}
 		}
 	}
 
-	pub fn is_out_of_bounds(&self) -> bool {
-		(self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
-	}
 }
