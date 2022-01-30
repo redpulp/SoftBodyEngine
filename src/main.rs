@@ -1,5 +1,5 @@
 use entities::*;
-use input::*;
+use ui::*;
 use macroquad::prelude::*;
 
 pub mod entities {
@@ -9,35 +9,35 @@ pub mod entities {
     pub mod segment;
 }
 
-pub mod input;
+pub mod ui;
 
 #[macroquad::main("Soft Body Simulation")]
 async fn main() {
     let mut creating_entity: Entities = Entities::Dot;
-    let dot_button = input::Button::new(
+    let dot_button = Button::new(
         0,
-        input::Actions::SetDotCreation,
+        Actions::SetDotCreation,
         include_bytes!("../resources/dot.png").to_vec(),
         include_bytes!("../resources/dot_hover.png").to_vec(),
         include_bytes!("../resources/dot_active.png").to_vec(),
     );
-    let polygon_button = input::Button::new(
+    let polygon_button = Button::new(
         1,
-        input::Actions::SetPolygonCreation,
+        Actions::SetPolygonCreation,
         include_bytes!("../resources/polygon.png").to_vec(),
         include_bytes!("../resources/polygon_hover.png").to_vec(),
         include_bytes!("../resources/polygon_active.png").to_vec(),
     );
-    let stop_drawing_button = input::Button::new(
+    let stop_drawing_button = Button::new(
         1,
-        input::Actions::StopDrawing,
+        Actions::StopDrawing,
         include_bytes!("../resources/stop_drawing.png").to_vec(),
         include_bytes!("../resources/stop_drawing_hover.png").to_vec(),
         include_bytes!("../resources/stop_drawing_active.png").to_vec(),
     );
-    let reset_button = input::Button::new(
+    let reset_button = Button::new(
         2,
-        input::Actions::ResetCanvas,
+        Actions::ResetCanvas,
         include_bytes!("../resources/reset.png").to_vec(),
         include_bytes!("../resources/reset_hover.png").to_vec(),
         include_bytes!("../resources/reset_active.png").to_vec(),
@@ -51,8 +51,8 @@ async fn main() {
     ];
 
     let buttons_window_dimensions = (
-        input::BUTTON_SIZE + input::BUTTON_OFFSET,
-        (buttons.len() as f32 * input::BUTTON_SIZE) + input::BUTTON_OFFSET,
+        BUTTON_SIZE + BUTTON_OFFSET,
+        (buttons.len() as f32 * BUTTON_SIZE) + BUTTON_OFFSET,
     );
 
     let mut dots: Vec<dot::Dot> = [].to_vec();
@@ -84,16 +84,16 @@ async fn main() {
                 }
             }
             match action {
-                Some(input::Actions::SetDotCreation) => {
+                Some(Actions::SetDotCreation) => {
                     creating_entity = Entities::Dot;
                 }
-                Some(input::Actions::SetPolygonCreation) => {
+                Some(Actions::SetPolygonCreation) => {
                     creating_entity = Entities::Polygon;
                 }
-                Some(input::Actions::StopDrawing) => {
+                Some(Actions::StopDrawing) => {
                     drawing_polygon.reset();
                 }
-                Some(input::Actions::ResetCanvas) => {
+                Some(Actions::ResetCanvas) => {
                     drawing_polygon.reset();
                     dots = [].to_vec();
                     polygons = [].to_vec();
@@ -103,7 +103,7 @@ async fn main() {
         });
 
         if is_mouse_button_pressed(MouseButton::Left) && !is_mouse_on_buttons {
-            input::spawn_entity(
+            spawn_entity(
                 &creating_entity,
                 &mut dots,
                 &mut polygons,
