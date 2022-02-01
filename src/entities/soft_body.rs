@@ -1,4 +1,5 @@
 use super::dot::*;
+use super::polygon::*;
 use macroquad::prelude::*;
 
 const DAMPING_FACTOR: f32 = 0.5;
@@ -22,30 +23,28 @@ impl Spring {
     }
   }
 
-  pub fn draw(&self, dots: &Vec<Dot>) {
+  pub fn draw(&self, dot1: &Dot, dot2: &Dot) {
     draw_line(
-      dots[self.index_1].pos[0],
-      dots[self.index_1].pos[1],
-      dots[self.index_2].pos[0],
-      dots[self.index_2].pos[1],
+      dot1.pos[0],
+      dot1.pos[1],
+      dot2.pos[0],
+      dot2.pos[1],
       2.,
       WHITE,
     );
   }
 
-  fn get_hooke_force(&self, dots: &Vec<Dot>) -> f32 {
-    ((dots[self.index_1].pos - dots[self.index_2].pos).length() - self.rest_length) * self.stiffness
+  fn get_hooke_force(&self, dot1: &Dot, dot2: &Dot) -> f32 {
+    ((dot1.pos - dot2.pos).length() - self.rest_length) * self.stiffness
   }
 
-  fn get_damping(&self, dots: &Vec<Dot>) -> f32 {
-    (dots[self.index_1].pos - dots[self.index_2].pos)
-      .normalize()
-      .dot(dots[self.index_1].vel - dots[self.index_2].vel)
-      * self.damping_factor
+  fn get_damping(&self, dot1: &Dot, dot2: &Dot) -> f32 {
+    (dot1.pos - dot2.pos).normalize().dot(dot1.vel - dot2.vel) * self.damping_factor
   }
 
-  pub fn get_force(&self, dots: &Vec<Dot>) -> f32 {
-    return self.get_hooke_force(dots) + self.get_damping(dots);
+  pub fn get_force(&self, dot1: &Dot, dot2: &Dot) -> Vec2 {
+    return (self.get_hooke_force(dot1, dot2) + self.get_damping(dot1, dot2))
+      * ((dot1.pos - dot2.pos).normalize());
   }
 }
 
@@ -94,8 +93,27 @@ impl SoftBody {
     self
       .springs
       .iter()
-      .for_each(|point| point.draw(&self.points));
+      .for_each(|spring| spring.draw(&self.points[spring.index_1], &self.points[spring.index_2]));
   }
 
-  // pub fn update(polygon: polygon::Polygon) {}
+  fn add_force_to_points(&mut self, spring_force: Vec2, indexes: (usize, usize)) {
+    self.points[indexes.0].add_force(spring_force);
+    self.points[indexes.0].add_force(-spring_force);
+  }
+
+  pub fn update(&mut self) {
+    self.springs.iter().for_each(|(spring)| {
+      let spring_force =
+        spring.get_force(&self.points[spring.index_1], &self.points[spring.index_2]);
+
+      self.add_force_to_points(spring_force, (spring.index_1, spring.index_2));
+    });
+  }
+
+  pub fn handle_collision(&mut self, polygon: &Polygon) {
+    self
+      .points
+      .iter_mut()
+      .for_each(|point| point.handle_collision(polygon));
+  }
 }
