@@ -3,6 +3,7 @@ use super::polygon::*;
 use macroquad::prelude::*;
 
 const DAMPING_FACTOR: f32 = 0.5;
+const RIGIDITY: f32 = 10.;
 
 pub struct Spring {
   stiffness: f32,
@@ -54,7 +55,7 @@ pub struct SoftBody {
 }
 
 impl SoftBody {
-  pub fn new() -> SoftBody {
+  pub fn new(pos1: f32, pos2: f32) -> SoftBody {
     fn get_all_springs(dots: &Vec<Dot>) -> Vec<Spring> {
       dots
         .clone()
@@ -66,19 +67,17 @@ impl SoftBody {
             .iter()
             .enumerate()
             .filter(|&(inner_index, _)| inner_index > index)
-            .map(|(inner_index, _)| Spring::new(&dots, index, inner_index, 0.5))
+            .map(|(inner_index, _)| Spring::new(&dots, index, inner_index, RIGIDITY))
             .collect::<Vec<Spring>>()
         })
         .collect::<Vec<Spring>>()
     }
 
-    let pos1 = screen_width() / 2.;
-    let pos2 = screen_height() / 2.;
-
     let dots = [
-      Dot::new(Some(vec2(pos1, pos2 - 20.)), None),
-      Dot::new(Some(vec2(pos1 + 18., pos2 + 12.)), None),
-      Dot::new(Some(vec2(pos1 - 18., pos2 + 12.)), None),
+      Dot::new(Some(vec2(pos1 + 20., pos2 + 20.)), None),
+      Dot::new(Some(vec2(pos1 - 20., pos2 + 20.)), None),
+      Dot::new(Some(vec2(pos1 + 20., pos2 - 20.)), None),
+      Dot::new(Some(vec2(pos1 - 20., pos2 - 20.)), None),
     ]
     .to_vec();
 
@@ -96,18 +95,18 @@ impl SoftBody {
       .for_each(|spring| spring.draw(&self.points[spring.index_1], &self.points[spring.index_2]));
   }
 
-  fn add_force_to_points(&mut self, spring_force: Vec2, indexes: (usize, usize)) {
-    self.points[indexes.0].add_force(spring_force);
-    self.points[indexes.0].add_force(-spring_force);
-  }
-
   pub fn update(&mut self) {
-    self.springs.iter().for_each(|(spring)| {
+    self.springs.iter().for_each(|spring| {
       let spring_force =
         spring.get_force(&self.points[spring.index_1], &self.points[spring.index_2]);
 
-      self.add_force_to_points(spring_force, (spring.index_1, spring.index_2));
+      let points = &mut self.points;
+
+      points[spring.index_1].add_force(-spring_force);
+      points[spring.index_2].add_force(spring_force);
     });
+
+    self.points.iter_mut().for_each(|point| point.update());
   }
 
   pub fn handle_collision(&mut self, polygon: &Polygon) {

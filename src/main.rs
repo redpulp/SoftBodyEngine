@@ -15,6 +15,8 @@ pub mod ui;
 #[macroquad::main("Soft Body Simulation")]
 async fn main() {
     let mut creating_entity: Entities = Entities::Dot;
+
+    // UI buttons definition
     let dot_button = Button::new(
         0,
         Actions::SetDotCreation,
@@ -60,7 +62,7 @@ async fn main() {
     let mut polygons: Vec<polygon::Polygon> = [polygon::Polygon::generate_floor()].to_vec();
     let mut drawing_polygon = incomplete_polygon::IncompletePolygon::new();
 
-    let mut soft_body = soft_body::SoftBody::new();
+    let mut soft_body = soft_body::SoftBody::new(screen_width() / 2., screen_height() / 2.);
 
     loop {
         clear_background(BLACK);
@@ -68,6 +70,7 @@ async fn main() {
         let is_mouse_on_buttons = mouse_position().0 < buttons_window_dimensions.0
             && mouse_position().1 < buttons_window_dimensions.1;
 
+        // Displaying UI
         buttons.iter().for_each(|button| {
             let is_creating_polygon = drawing_polygon.points.len() > 0;
             let mut action: Option<Actions> = None;
@@ -105,6 +108,7 @@ async fn main() {
             }
         });
 
+        // Listening for user events
         if is_mouse_button_pressed(MouseButton::Left) && !is_mouse_on_buttons {
             spawn_entity(
                 &creating_entity,
@@ -113,6 +117,8 @@ async fn main() {
                 &mut drawing_polygon,
             );
         }
+
+        // Drawing polygons
         polygons.iter().for_each(|poly| {
             poly.draw();
         });
@@ -120,6 +126,7 @@ async fn main() {
         // Destroying dots out of bounds
         dots.retain(|single_dot| !single_dot.is_out_of_bounds());
 
+        // Moving and drawing dots
         dots.iter_mut().for_each(|single_dot| {
             single_dot.update();
             polygons.iter().for_each(|poly| {
@@ -128,8 +135,13 @@ async fn main() {
             single_dot.draw();
         });
 
+        // Drawing In-progress polygon
         drawing_polygon.draw();
 
+        soft_body.update();
+        polygons.iter().for_each(|poly| {
+            soft_body.handle_collision(poly);
+        });
         soft_body.draw();
 
         // std::thread::sleep(std::time::Duration::from_millis(500));

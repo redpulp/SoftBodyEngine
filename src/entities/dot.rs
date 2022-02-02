@@ -2,6 +2,8 @@ use super::polygon::*;
 use macroquad::prelude::*;
 
 const DELTA_T: f32 = 0.1;
+const RADIUS: f32 = 6.;
+const MASS: f32 = 1.;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Dot {
@@ -20,8 +22,8 @@ impl Dot {
 		Dot {
 			pos: initial_position,
 			prev_pos: initial_position,
-			mass: mass.unwrap_or(1.),
-			radius: 6.,
+			mass: mass.unwrap_or(MASS),
+			radius: RADIUS,
 			vel: vec2(0., 0.),
 			force: vec2(0., 0.),
 			freeze: false,
@@ -62,7 +64,12 @@ impl Dot {
 	}
 
 	fn is_in_bounding_box(&self, polygon: &Polygon) -> bool {
-		let (min_hor, max_hor, min_ver, max_ver) = polygon.bounding_box();
+		let BoundingBox {
+			min_hor,
+			max_hor,
+			min_ver,
+			max_ver,
+		} = polygon.bounding_box;
 		(self.pos[0] - self.radius) < max_hor
 			&& (self.pos[0] + self.radius) > min_hor
 			&& (self.pos[1] - self.radius) < max_ver
