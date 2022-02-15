@@ -6,13 +6,16 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 
 ## State of the project
 
-- [ ] Tests definition
-- [ ] CI setup
-- [x] Drawing basic entities
-- [x] Basic rigid body dynamics
-- [x] User interaction to create/delete entities
-- [ ] Create UI restrictions
-- [ ] Soft-body dynamics
-- [ ] Soft-body generation
-- [ ] Soft-body user interaction
-- [ ] Understanding Rust
+#### Working
+- Drawing basic entities
+- Basic rigid body 
+- User interaction to create entities
+- Soft-body dynamics
+- Soft-body generation
+
+#### TODO
+- Create UI restrictions
+- Setup CI
+- Define soft-body user interaction
+- Prevent tunnelling
+- Implement soft-body self collision 
