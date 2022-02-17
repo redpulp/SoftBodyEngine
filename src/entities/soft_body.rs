@@ -170,13 +170,14 @@ impl SoftBody {
     pub fn update(&mut self) {
         self.springs.iter().for_each(|spring| {
             if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
-                let spring_force =
-                    spring.get_force(&self.points[spring.index_1], &self.points[spring.index_2]);
+                let spring_acceleration = spring
+                    .get_force(&self.points[spring.index_1], &self.points[spring.index_2])
+                    / self.points[spring.index_1].mass;
 
                 let points = &mut self.points;
 
-                points[spring.index_1].add_force(-spring_force);
-                points[spring.index_2].add_force(spring_force);
+                points[spring.index_1].add_acceleration(-spring_acceleration);
+                points[spring.index_2].add_acceleration(spring_acceleration);
             }
         });
 

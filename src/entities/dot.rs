@@ -10,9 +10,9 @@ pub struct Dot {
     pub pos: Vec2,
     pub vel: Vec2,
     pub radius: f32,
+    pub mass: f32,
     prev_pos: Vec2,
-    force: Vec2,
-    mass: f32,
+    acceleration: Vec2,
     freeze: bool,
 }
 
@@ -25,7 +25,7 @@ impl Dot {
             mass: mass.unwrap_or(MASS),
             radius: RADIUS,
             vel: vec2(0., 0.),
-            force: vec2(0., 0.),
+            acceleration: vec2(0., 0.),
             freeze: false,
         }
     }
@@ -34,14 +34,14 @@ impl Dot {
     }
 
     fn add_gravity(&mut self) {
-        self.force += vec2(0., 9.8 * self.mass);
+        self.acceleration += vec2(0., 9.8);
     }
 
     pub fn update(&mut self) {
         self.add_gravity();
         self.prev_pos = self.pos;
         if !self.freeze {
-            self.vel += (self.force * DELTA_T) / self.mass;
+            self.vel += self.acceleration * DELTA_T;
             self.vel = if self.vel.length() < 200. {
                 self.vel
             } else {
@@ -49,15 +49,15 @@ impl Dot {
             };
             self.pos += self.vel * DELTA_T;
         }
-        self.force = vec2(0., 0.);
+        self.acceleration = vec2(0., 0.);
     }
 
-    pub fn add_force(&mut self, force: Vec2) {
-        self.force += force;
+    pub fn add_acceleration(&mut self, acceleration: Vec2) {
+        self.acceleration += acceleration;
     }
 
     pub fn push(&mut self, push_vec: &Vec2) {
-        // self.force += *push_vec;
+        // self.acceleration += *push_vec;
         if !self.freeze {
             self.vel += *push_vec;
             self.pos += *push_vec;
@@ -113,7 +113,7 @@ impl Dot {
     }
 
     // Calculates push vector to move Dot out of a Polygon
-    // If no Polygon intersects the Dot, None is returned
+    // If the Polygon doesn't intersects the Dot, None is returned
     pub fn get_push_vector(&self, polygon: &Polygon) -> Option<Vec2> {
         if !self.is_in_bounding_box(polygon) {
             return None;
