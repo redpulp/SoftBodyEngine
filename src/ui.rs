@@ -41,7 +41,9 @@ pub fn spawn_entity(
             *body = soft_body::SoftBody::new(mouse_position().0, mouse_position().1);
         }
         Entities::Polygon => {
-            drawing_polygon.add_point(vec2(mouse_position().0, mouse_position().1), polygons);
+            if !drawing_polygon.is_intersecting_with_polygons(polygons) {
+                drawing_polygon.add_point(vec2(mouse_position().0, mouse_position().1), polygons);
+            }
         }
     }
 }

@@ -13,12 +13,12 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 - Drawing basic entities
 - Basic rigid body
 - User interaction to create entities
+- UI restrictions
 - Soft-body dynamics
 - Soft-body generation
 
 #### TODO
 
-- Create UI restrictions
 - Setup CI
 - Define soft-body user interaction
 - Prevent tunnelling
