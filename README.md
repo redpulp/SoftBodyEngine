@@ -23,3 +23,4 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 - Define soft-body user interaction
 - Prevent tunnelling
 - Use Runge-Kutta 4 for movement
+- Fix buttons' dead-zone

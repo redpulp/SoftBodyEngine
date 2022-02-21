@@ -1,5 +1,9 @@
 use super::super::entities::segment::*;
-use macroquad::prelude::vec2;
+use macroquad::prelude::{vec2, Vec2};
+
+pub fn point_diff(point1: &Vec2, point2: &Vec2) -> Vec2 {
+    vec2(point2.x - point1.x, point2.y - point1.y)
+}
 
 fn negative_difference(val1: f32, val2: f32) -> bool {
     val1 - val2 < 0.
@@ -16,9 +20,9 @@ fn all_equal(conditions: Vec<bool>) -> bool {
 }
 
 pub fn do_segments_intersect(segment1: &Segment, segment2: &Segment) -> bool {
-    let common_point = vec2(segment2.x1 - segment1.x1, segment2.y1 - segment1.y1);
-    let origin_segment_1 = vec2(segment1.x2 - segment1.x1, segment1.y2 - segment1.y1);
-    let origin_segment_2 = vec2(segment2.x2 - segment2.x1, segment2.y2 - segment2.y1);
+    let common_point = point_diff(&segment1.p1, &segment2.p1);
+    let origin_segment_1 = point_diff(&segment1.p1, &segment1.p2);
+    let origin_segment_2 = point_diff(&segment2.p1, &segment2.p2);
 
     let numerator = (common_point.x * origin_segment_1.y) - (common_point.y * origin_segment_1.x);
     let denominator =
@@ -27,18 +31,18 @@ pub fn do_segments_intersect(segment1: &Segment, segment2: &Segment) -> bool {
     if numerator == 0. && denominator == 0. {
         return !all_equal(
             [
-                negative_difference(segment1.x1, segment2.x1),
-                negative_difference(segment1.x1, segment2.x2),
-                negative_difference(segment1.x2, segment2.x1),
-                negative_difference(segment1.x2, segment2.x2),
+                negative_difference(segment1.p1.x, segment2.p1.x),
+                negative_difference(segment1.p1.x, segment2.p2.x),
+                negative_difference(segment1.p2.x, segment2.p1.x),
+                negative_difference(segment1.p2.x, segment2.p2.x),
             ]
             .to_vec(),
         ) || !all_equal(
             [
-                negative_difference(segment1.y1, segment2.y1),
-                negative_difference(segment1.y1, segment2.y2),
-                negative_difference(segment1.y2, segment2.y1),
-                negative_difference(segment1.y2, segment2.y2),
+                negative_difference(segment1.p1.y, segment2.p1.y),
+                negative_difference(segment1.p1.y, segment2.p2.y),
+                negative_difference(segment1.p2.y, segment2.p1.y),
+                negative_difference(segment1.p2.y, segment2.p2.y),
             ]
             .to_vec(),
         );
