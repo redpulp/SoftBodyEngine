@@ -20,15 +20,17 @@ pub mod utils {
 #[macroquad::main("Soft Body Simulation")]
 async fn main() {
     let mut creating_entity: Entities = Entities::Dot;
+    let mut show_skeleton = false;
 
-    let buttons_window_dimensions = (215., 135.);
+    let buttons_window_dimensions = (265., 155.);
 
     let mut polygons: Vec<polygon::Polygon> = [polygon::Polygon::generate_floor()].to_vec();
     let mut drawing_polygon = incomplete_polygon::IncompletePolygon::new();
 
     let mut soft_body = soft_body::SoftBody::new(screen_width() / 2., screen_height() / 2.);
 
-    let [polygon_button, stop_drawing_button, reset_button, soft_body_button] = spawn_buttons();
+    let [polygon_button, stop_drawing_button, reset_button, soft_body_button, show_skeleton_button, show_border_button] =
+        spawn_buttons();
 
     loop {
         clear_background(BLACK);
@@ -40,7 +42,7 @@ async fn main() {
             egui::Window::new("Controller")
                 .fixed_rect(egui::Rect {
                     min: egui::Pos2::new(0., 0.),
-                    max: egui::Pos2::new(200., 100.),
+                    max: egui::Pos2::new(250., 100.),
                 })
                 .collapsible(false)
                 .show(egui_ctx, |ui| {
@@ -60,6 +62,15 @@ async fn main() {
                         }
                     }
                     ui.separator();
+                    if show_skeleton {
+                        if ui.button(show_border_button.clone()).clicked() {
+                            show_skeleton = false;
+                        }
+                    } else {
+                        if ui.button(show_skeleton_button.clone()).clicked() {
+                            show_skeleton = true;
+                        }
+                    }
                     if ui.button(reset_button.clone()).clicked() {
                         drawing_polygon.reset();
                         polygons = [].to_vec();
@@ -87,11 +98,15 @@ async fn main() {
         // Drawing In-progress polygon
         drawing_polygon.draw(&polygons);
 
-        soft_body.update();
+        soft_body.update_runge_kutta();
         polygons.iter().for_each(|poly| {
             soft_body.handle_collision(poly);
         });
-        soft_body.draw_border();
+        if show_skeleton {
+            soft_body.draw();
+        } else {
+            soft_body.draw_border();
+        }
 
         draw_mouse_icon(&mut creating_entity);
 
