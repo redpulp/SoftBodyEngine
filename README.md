@@ -4,12 +4,11 @@ A work in progress Physics Engine, using [Macroquad](https://macroquad.rs/) to h
 
 You can generate new soft-bodies
 
-(Bouncing soft-body)[https://media.giphy.com/media/fmdvNMxjEkY0yvljDj/giphy.gif]
+![Bouncing soft-body](https://media.giphy.com/media/fmdvNMxjEkY0yvljDj/giphy.gif)
 
 And change the geomtery of the environment
 
-(Creation of a polygon)
-[https://media.giphy.com/media/Kk8K3TQQ0S1W6Un10P/giphy.gif]
+![Creation of a polygon](https://media.giphy.com/media/Kk8K3TQQ0S1W6Un10P/giphy.gif)
 
 ## How to run
 
