@@ -17,7 +17,8 @@ pub struct Dot {
 
 impl Dot {
     pub fn new(pos: Option<Vec2>) -> Dot {
-        let initial_position = pos.unwrap_or(vec2(screen_width() / 2., screen_height() / 2.));
+        let initial_position =
+            pos.unwrap_or_else(|| vec2(screen_width() / 2., screen_height() / 2.));
         Dot {
             pos: initial_position,
             prev_pos: initial_position,
