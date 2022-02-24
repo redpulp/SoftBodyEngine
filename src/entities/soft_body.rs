@@ -155,12 +155,12 @@ fn generate_springs(
                     distance.length() > 0.
                         && ((distance_x == 0. && distance_y == vertical_distance)
                             || (distance[1] == 0. && distance_x == horizontal_distance)
-                            || (distance_x == horizontal_distance
+                            || ((distance_x - horizontal_distance).abs() < 0.01
                                 && distance_y == vertical_distance))
                 })
                 .map(|inner_index| {
                     Spring::new(
-                        &dots,
+                        dots,
                         index,
                         inner_index,
                         RIGIDITY
@@ -249,7 +249,7 @@ impl SoftBody {
     pub fn update_runge_kutta(&mut self) {
         self.springs.clone().iter().for_each(|spring| {
             if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
-                self.update_spring_runge_kutta(&spring);
+                self.update_spring_runge_kutta(spring);
             }
         });
         self.points.iter_mut().for_each(|point| point.update(true));

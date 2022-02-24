@@ -170,12 +170,12 @@ pub fn spawn_buttons() -> [LayoutJob; 6] {
         },
     );
 
-    return [
+    [
         polygon_button,
         stop_drawing_button,
         reset_button,
         soft_body_button,
         show_skeleton_button,
         show_border_button,
-    ];
+    ]
 }

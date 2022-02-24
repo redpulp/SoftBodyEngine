@@ -10,7 +10,7 @@ fn negative_difference(val1: f32, val2: f32) -> bool {
 }
 
 fn all_equal(conditions: Vec<bool>) -> bool {
-    if conditions.len() > 0 {
+    if !conditions.is_empty() {
         !conditions
             .iter()
             .any(|condition| *condition != conditions[0])
@@ -53,5 +53,5 @@ pub fn do_segments_intersect(segment1: &Segment, segment2: &Segment) -> bool {
     let val1 = numerator / denominator;
     let val2 = ((common_point.x * origin_segment_2.y) - (common_point.y * origin_segment_2.x))
         / denominator;
-    return val1 >= 0. && val1 <= 1. && val2 >= 0. && val2 <= 1.;
+    (0. ..=1.).contains(&val1) && (0. ..=1.).contains(&val2)
 }

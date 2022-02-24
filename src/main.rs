@@ -36,7 +36,7 @@ async fn main() {
         clear_background(BLACK);
         let is_mouse_on_buttons = mouse_position().0 < buttons_window_dimensions.0
             && mouse_position().1 < buttons_window_dimensions.1;
-        let is_creating_polygon = drawing_polygon.points.len() > 0;
+        let is_creating_polygon = !drawing_polygon.points.is_empty();
 
         egui_macroquad::ui(|egui_ctx| {
             egui::Window::new("Controller")
@@ -111,6 +111,7 @@ async fn main() {
         draw_mouse_icon(&mut creating_entity);
 
         // std::thread::sleep(std::time::Duration::from_millis(300));
+
         next_frame().await
     }
 }
