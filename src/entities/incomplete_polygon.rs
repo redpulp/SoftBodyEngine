@@ -26,23 +26,19 @@ impl IncompletePolygon {
 
             let ending_point = if !is_last_segment {
                 self.points[i + 1]
+            } else if is_on_end {
+                // Snap to start if close enough
+                self.points[0]
             } else {
-                if is_on_end {
-                    // Snap to start if close enough
-                    self.points[0]
-                } else {
-                    mouse_position
-                }
+                mouse_position
             };
 
             let drawing_color = if !is_last_segment {
                 STD_COLOR
+            } else if self.is_intersecting_with_polygons(polygons) {
+                ERROR_COLOR
             } else {
-                if self.is_intersecting_with_polygons(polygons) {
-                    ERROR_COLOR
-                } else {
-                    OK_COLOR
-                }
+                OK_COLOR
             };
 
             draw_line(
@@ -57,7 +53,7 @@ impl IncompletePolygon {
     }
 
     pub fn is_intersecting_with_polygons(&self, polygons: &Vec<Polygon>) -> bool {
-        if self.points.len() > 0 {
+        if !self.points.is_empty() {
             polygons.iter().any(|poly| {
                 poly.segments().iter().any(|segment| {
                     do_segments_intersect(
@@ -65,7 +61,7 @@ impl IncompletePolygon {
                             p1: self.points[self.points.len() - 1],
                             p2: vec2(mouse_position().0, mouse_position().1),
                         },
-                        &segment,
+                        segment,
                     )
                 })
             })
