@@ -1,3 +1,4 @@
+use super::super::utils::math::close_to_equal;
 use super::dot::*;
 use super::interaction::*;
 use super::polygon::*;
@@ -7,16 +8,16 @@ const DAMPING_FACTOR: f32 = 0.8;
 const RIGIDITY: f32 = 5.;
 
 fn is_dot_on_border(dot: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
-    dot.pos[0] == corner1[0]
-        || dot.pos[1] == corner1[1]
-        || dot.pos[0] == corner2[0]
-        || dot.pos[1] == corner2[1]
+    close_to_equal(dot.pos[0], corner1[0])
+        || close_to_equal(dot.pos[1], corner1[1])
+        || close_to_equal(dot.pos[0], corner2[0])
+        || close_to_equal(dot.pos[1], corner2[1])
 }
 
 fn are_dots_on_border(dot1: &Dot, dot2: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
     is_dot_on_border(dot1, corner1, corner2)
         && is_dot_on_border(dot2, corner1, corner2)
-        && (dot1.pos[0] == dot2.pos[0] || dot1.pos[1] == dot2.pos[1])
+        && (close_to_equal(dot1.pos[0], dot2.pos[0]) || close_to_equal(dot1.pos[1], dot2.pos[1]))
 }
 #[derive(Copy, Clone)]
 pub struct Spring {
@@ -30,7 +31,7 @@ pub struct Spring {
 
 impl Spring {
     pub fn new(
-        dots: &Vec<Dot>,
+        dots: &[Dot],
         index_1: usize,
         index_2: usize,
         stiffness: f32,
@@ -106,7 +107,7 @@ fn generate_dots(top_left_corner: Vec2, bottom_right_corner: Vec2) -> (Vec<Dot>,
         None,
         None,
     );
-    let mut dots: Vec<Dot> = [].to_vec();
+    let mut dots: Vec<Dot> = vec![];
     let horizontal_step =
         (bottom_right_corner[0] - top_left_corner[0]) / (horizontal_subdivisions as f32);
     let vertical_step =
@@ -127,7 +128,7 @@ fn generate_dots(top_left_corner: Vec2, bottom_right_corner: Vec2) -> (Vec<Dot>,
 
 // Generates the spring using dots proximity
 fn generate_springs(
-    dots: &Vec<Dot>,
+    dots: &[Dot],
     mut horizontal_distance: f32,
     mut vertical_distance: f32,
     (corner1, corner2): (&Vec2, &Vec2),
@@ -139,22 +140,23 @@ fn generate_springs(
     }
     horizontal_distance = round(horizontal_distance);
     vertical_distance = round(vertical_distance);
-    dots.clone()
-        .iter()
+
+    dots.iter()
         .enumerate()
         .flat_map(|(index, dot)| {
-            dots.clone()
-                .iter()
+            dots.iter()
                 .enumerate()
                 .map(|(inner_index, _)| inner_index)
                 .filter(|&inner_index| {
                     let distance = (dots[inner_index].pos - dot.pos).abs();
                     let (distance_x, distance_y) = (round(distance[0]), round(distance[1]));
                     distance.length() > 0.
-                        && ((distance_x == 0. && distance_y == vertical_distance)
-                            || (distance[1] == 0. && distance_x == horizontal_distance)
-                            || ((distance_x - horizontal_distance).abs() < 0.01
-                                && distance_y == vertical_distance))
+                        && ((close_to_equal(distance_x, 0.)
+                            && close_to_equal(distance_y, vertical_distance))
+                            || (close_to_equal(distance[1], 0.)
+                                && close_to_equal(distance_x, horizontal_distance))
+                            || (close_to_equal(distance_x, horizontal_distance)
+                                && close_to_equal(distance_y, vertical_distance)))
                 })
                 .map(|inner_index| {
                     Spring::new(
@@ -269,15 +271,10 @@ impl SoftBody {
             )
         };
 
-        let mut point1 = self.points[spring.index_1];
-        let mut point2 = self.points[spring.index_2];
+        let point1 = self.points[spring.index_1];
+        let point2 = self.points[spring.index_2];
 
         let (k1_1, k1_2) = get_acceleration(point1.pos, point2.pos, point1.vel, point2.vel);
-        let update = handle_temp_point_point_collision(point1.pos, point2.pos);
-        if update.is_some() {
-            point1.pos = update.unwrap();
-            point2.pos = -update.unwrap();
-        }
         let k1_1_halved = k1_1 / 2.;
         let k1_2_halved = k1_2 / 2.;
         let (k2_1, k2_2) = get_acceleration(

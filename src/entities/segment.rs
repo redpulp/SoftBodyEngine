@@ -28,10 +28,10 @@ impl Segment {
         let value = e1.dot(e2);
         if value >= 0. && value <= rect_area {
             // Solving for vertical and horizontal segments
-            if self.p1.x == self.p2.x {
+            if close_to_equal(self.p1.x, self.p2.x) {
                 return Some(vec2(self.p1.x, point[1]));
             }
-            if self.p1.y == self.p2.y {
+            if close_to_equal(self.p1.y, self.p2.y) {
                 return Some(vec2(point[0], self.p1.y));
             }
 
@@ -60,10 +60,10 @@ impl Segment {
         };
 
         x_range.contains(&point[0])
-            && (if p1.x == p2.x {
+            && (if close_to_equal(p1.x, p2.x) {
                 p1.y > point[1]
             } else {
-                (((self.slope()) * &point[0]) + p1.y - ((self.slope()) * p1.x)) > point[1]
+                (((self.slope()) * point[0]) + p1.y - ((self.slope()) * p1.x)) > point[1]
             })
     }
 }
