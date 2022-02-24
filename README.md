@@ -4,7 +4,7 @@ A work in progress Physics Engine, using [Macroquad](https://macroquad.rs/) to h
 
 ## How to run
 
-Until I set up Docker or WASM, `cargo run` (cargo required).
+Until I set up Docker or WASM, `cargo run` (`cargo` required).
 
 ## State of the project
 
@@ -19,6 +19,5 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 
 #### TODO
 
-- Setup CI
 - Prevent tunnelling
 - Add friction
