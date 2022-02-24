@@ -1,6 +1,6 @@
 ## The engine
 
-A work in progress Physics Engine, using [Macroquad](https://macroquad.rs/) to handle the graphics. Especially focused on basics of soft-body mechanics.
+A work in progress Physics Engine, using [Macroquad](https://macroquad.rs/) to handle the graphics and [egui](https://github.com/emilk/egui) for the UI. Especially focused on basics of soft-body mechanics.
 
 You can generate new soft-bodies
 
@@ -12,20 +12,9 @@ And change the geomtery of the environment
 
 ## How to run
 
-Until I set up Docker or WASM, `cargo run` (`cargo` required).
+Until I set up Docker or WASM, `cargo run` (cargo required).
 
-##
-
-#### Working
-
-- Drawing basic entities
-- Basic rigid body
-- User interaction to create entities
-- UI restrictions
-- Soft-body dynamics
-- Soft-body generation
-
-#### TODO
+## Features left to complete
 
 - Prevent tunnelling
 - Add friction
