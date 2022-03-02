@@ -5,7 +5,7 @@ use super::polygon::*;
 use macroquad::prelude::*;
 
 const DAMPING_FACTOR: f32 = 0.8;
-const RIGIDITY: f32 = 5.;
+const RIGIDITY: f32 = 6.;
 
 fn is_dot_on_border(dot: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
     close_to_equal(dot.pos[0], corner1[0])
