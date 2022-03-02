@@ -12,7 +12,7 @@ jobs:
           toolchain: stable
       - run: rustup target add wasm32-unknown-unknown
       - run: cargo build --target wasm32-unknown-unknown
-      - run: cp target/wasm32-unknown-unknown/debug/soft_body_simulation.wasm .github/workspace/build/
+      - run: cp target/wasm32-unknown-unknown/debug/soft_body_simulation.wasm build/
       - uses: jsmrcaga/action-netlify-deploy@v1.1.0
         with:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
