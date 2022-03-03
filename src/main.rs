@@ -24,7 +24,7 @@ async fn main() {
 
     let buttons_window_dimensions = (265., 155.);
 
-    let mut polygons: Vec<polygon::Polygon> = [polygon::Polygon::generate_floor()].to_vec();
+    let mut polygons: Vec<polygon::Polygon> = vec![polygon::Polygon::generate_floor()];
     let mut drawing_polygon = incomplete_polygon::IncompletePolygon::new();
 
     let mut soft_body = soft_body::SoftBody::new(screen_width() / 2., screen_height() / 2.);
@@ -71,7 +71,7 @@ async fn main() {
                     }
                     if ui.button(reset_button.clone()).clicked() {
                         drawing_polygon.reset();
-                        polygons = vec![];
+                        polygons = vec![polygon::Polygon::generate_floor()];
                     }
                 });
         });
