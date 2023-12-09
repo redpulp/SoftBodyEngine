@@ -1,4 +1,4 @@
-use super::super::entities::segment::*;
+use crate::entities::segment::*;
 use macroquad::prelude::{vec2, Vec2};
 
 pub fn point_diff(point1: &Vec2, point2: &Vec2) -> Vec2 {

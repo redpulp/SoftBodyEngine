@@ -1,4 +1,4 @@
-use super::super::utils::math::*;
+use crate::utils::math::*;
 use macroquad::prelude::*;
 
 #[derive(Clone, Debug)]
