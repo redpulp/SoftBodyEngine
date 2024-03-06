@@ -1,7 +1,6 @@
 use super::polygon::*;
 use macroquad::prelude::*;
 
-pub const DELTA_T_EULER: f32 = 0.1;
 pub const DELTA_T_RUNGE_KUTTA: f32 = 0.4;
 pub const RADIUS: f32 = 5.;
 
@@ -32,21 +31,16 @@ impl Dot {
         (self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
     }
 
-    pub fn update(&mut self, runge_kutta: bool) {
+    pub fn update(&mut self) {
         self.prev_pos = self.pos;
-        let delta = if runge_kutta {
-            DELTA_T_RUNGE_KUTTA
-        } else {
-            DELTA_T_EULER
-        };
         if !self.freeze {
-            self.vel += self.acceleration * delta;
+            self.vel += self.acceleration * DELTA_T_RUNGE_KUTTA;
             self.vel = if self.vel.length() < 100. {
                 self.vel
             } else {
                 self.vel.normalize() * 10.
             };
-            self.pos += self.vel * delta;
+            self.pos += self.vel * DELTA_T_RUNGE_KUTTA;
         }
         self.acceleration = vec2(0., 0.);
     }
@@ -65,10 +59,12 @@ impl Dot {
     }
 
     pub fn push(&mut self, push_vec: &Vec2) {
-        if !self.freeze {
-            self.acceleration += *push_vec * 10.;
-            self.pos += *push_vec;
+        if self.freeze {
+            return;
         }
+
+        self.acceleration += *push_vec * 10.;
+        self.pos += *push_vec;
     }
 
     pub fn draw(&self) {
@@ -120,7 +116,6 @@ impl Dot {
     }
 
     // Calculates push vector to move Dot out of a Polygon
-    // If the Polygon doesn't intersects the Dot, None is returned
     pub fn get_push_vector(&self, polygon: &Polygon) -> Option<Vec2> {
         if !self.is_in_bounding_box(polygon) {
             return None;

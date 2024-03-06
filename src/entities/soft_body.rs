@@ -226,34 +226,13 @@ impl SoftBody {
         });
     }
 
-    pub fn update_euler(&mut self) {
-        self.springs.iter().for_each(|spring| {
-            if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
-                let spring_acceleration = spring.get_force(
-                    self.points[spring.index_1].pos,
-                    self.points[spring.index_2].pos,
-                    self.points[spring.index_1].vel,
-                    self.points[spring.index_2].vel,
-                );
-
-                let points = &mut self.points;
-
-                points[spring.index_1].add_acceleration(-spring_acceleration);
-                points[spring.index_2].add_acceleration(spring_acceleration);
-            }
-        });
-
-        self.points.iter_mut().for_each(|point| point.add_gravity());
-        self.points.iter_mut().for_each(|point| point.update(false));
-    }
-
     pub fn update_runge_kutta(&mut self) {
         self.springs.clone().iter().for_each(|spring| {
             if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
                 self.update_spring_runge_kutta(spring);
             }
         });
-        self.points.iter_mut().for_each(|point| point.update(true));
+        self.points.iter_mut().for_each(|point| point.update());
         self.springs.iter().for_each(|spring| {
             handle_point_point_collision(&mut self.points, spring.index_1, spring.index_2);
         });
