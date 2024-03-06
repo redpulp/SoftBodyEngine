@@ -82,6 +82,7 @@ async fn main() {
         drawing_polygon.draw(&polygons, &soft_body);
 
         soft_body.update_runge_kutta();
+
         polygons.iter().for_each(|poly| {
             soft_body.handle_collision(poly);
         });
