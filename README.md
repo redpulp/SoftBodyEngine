@@ -39,7 +39,7 @@ Given the general definition of the Runge-Kutta method of order $n$, with a time
 $$y_{t+h} = y_t + h\cdot\sum_{i=1}^{n}{a_ik_i} + O(h^{n+1})$$
 
 we can evaluate the fourth order and find the coefficients of the sum as:
-$$a_1 = \frac{1}{6},\;\;a_2 = \frac{1}{3},\;\;a_3 = \frac{1}{3},\;\;a_4 = \frac{1}{6}$$
+$$a_1 = \frac{1}{6}, \;\; a_2 = \frac{1}{3}, \;\; a_3 = \frac{1}{3}, \;\; a_4 = \frac{1}{6}$$
 
 Every slope of the integration ($k$) can be calculated through the midpoint of the previous one.
 
