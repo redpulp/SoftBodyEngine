@@ -24,8 +24,8 @@ pub fn draw_mouse_icon(creating_entity: &mut Entities) {
                 mouse_position().1 + 15.,
                 20.,
                 20.,
-                2.,
-                YELLOW,
+                3.,
+                BLUE,
             );
         }
     }
@@ -42,7 +42,9 @@ pub fn spawn_entity(
             *body = soft_body::SoftBody::new(mouse_position().0, mouse_position().1);
         }
         Entities::Polygon => {
-            if !drawing_polygon.is_intersecting_with_polygons(polygons) {
+            if !drawing_polygon.is_intersecting_with_polygons(polygons)
+                && !drawing_polygon.is_intersecting_with_soft_body(body)
+            {
                 drawing_polygon.add_point(vec2(mouse_position().0, mouse_position().1), polygons);
             }
         }
