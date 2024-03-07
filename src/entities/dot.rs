@@ -1,7 +1,7 @@
 use super::polygon::*;
 use macroquad::prelude::*;
 
-pub const DELTA_T_RUNGE_KUTTA: f32 = 0.4;
+pub const DELTA_T_RUNGE_KUTTA: f32 = 0.25;
 pub const RADIUS: f32 = 10.;
 
 #[derive(Copy, Clone, Debug)]
