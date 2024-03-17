@@ -45,6 +45,10 @@ impl Dot {
 		self.force = vec2(0., 0.);
 	}
 
+	pub fn add_force(&mut self, force: Vec2) {
+		self.force += force;
+	}
+
 	fn push(&mut self, push_vec: &Vec2) {
 		// self.force += *push_vec;
 		if !self.freeze {
