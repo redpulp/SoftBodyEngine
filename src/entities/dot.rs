@@ -2,7 +2,7 @@ use super::polygon::*;
 use macroquad::prelude::*;
 
 pub const DELTA_T_RUNGE_KUTTA: f32 = 0.4;
-pub const RADIUS: f32 = 5.;
+pub const RADIUS: f32 = 10.;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Dot {
