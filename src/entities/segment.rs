@@ -23,7 +23,7 @@ impl Segment {
     // Get the projection of a point on the segment
     pub fn get_projection(&self, point: &Vec2) -> Option<Vec2> {
         let e1 = self.half_point();
-        let e2 = point_diff(&self.p1, &point);
+        let e2 = point_diff(&self.p1, point);
         let rect_area = e1.dot(e1);
         let value = e1.dot(e2);
         if value >= 0. && value <= rect_area {

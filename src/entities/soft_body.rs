@@ -80,23 +80,21 @@ fn get_subdivisions(
     let temp_hor_sub = hor_sub.unwrap_or(1);
     let temp_ver_sub = ver_sub.unwrap_or(1);
     if (hor_distance / ver_distance).abs() < 1.1 && (hor_distance / ver_distance).abs() > 0.9 {
-        return (temp_hor_sub, temp_ver_sub);
+        (temp_hor_sub, temp_ver_sub)
+    } else if hor_distance > ver_distance {
+        get_subdivisions(
+            (hor_distance * temp_hor_sub as f32) / (temp_hor_sub as f32 + 1.),
+            ver_distance,
+            Some(temp_hor_sub + 1),
+            ver_sub,
+        )
     } else {
-        if hor_distance > ver_distance {
-            return get_subdivisions(
-                (hor_distance * temp_hor_sub as f32) / (temp_hor_sub as f32 + 1.),
-                ver_distance,
-                Some(temp_hor_sub + 1),
-                ver_sub,
-            );
-        } else {
-            return get_subdivisions(
-                hor_distance,
-                (ver_distance * temp_ver_sub as f32) / (temp_ver_sub as f32 + 1.),
-                hor_sub,
-                Some(temp_ver_sub + 1),
-            );
-        }
+        get_subdivisions(
+            hor_distance,
+            (ver_distance * temp_ver_sub as f32) / (temp_ver_sub as f32 + 1.),
+            hor_sub,
+            Some(temp_ver_sub + 1),
+        )
     }
 }
 

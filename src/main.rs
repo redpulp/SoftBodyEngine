@@ -66,10 +66,8 @@ async fn main() {
                         if ui.button(show_border_button.clone()).clicked() {
                             show_skeleton = false;
                         }
-                    } else {
-                        if ui.button(show_skeleton_button.clone()).clicked() {
-                            show_skeleton = true;
-                        }
+                    } else if ui.button(show_skeleton_button.clone()).clicked() {
+                        show_skeleton = true;
                     }
                     if ui.button(reset_button.clone()).clicked() {
                         drawing_polygon.reset();
