@@ -5,10 +5,10 @@ const DELTA_T: f32 = 0.1;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Dot {
-	pos: Vec2,
+	pub pos: Vec2,
+	pub vel: Vec2,
 	prev_pos: Vec2,
 	radius: f32,
-	vel: Vec2,
 	force: Vec2,
 	mass: f32,
 	freeze: bool,
@@ -27,7 +27,6 @@ impl Dot {
 			freeze: false,
 		}
 	}
-	
 	pub fn is_out_of_bounds(&self) -> bool {
 		(self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
 	}
@@ -38,7 +37,7 @@ impl Dot {
 
 	pub fn update(&mut self) {
 		self.add_gravity();
-		self.prev_pos = self.pos; 
+		self.prev_pos = self.pos;
 		if !self.freeze {
 			self.vel += (self.force * DELTA_T) / self.mass;
 			self.pos += self.vel * DELTA_T;
@@ -48,8 +47,10 @@ impl Dot {
 
 	fn push(&mut self, push_vec: &Vec2) {
 		// self.force += *push_vec;
-		self.vel += *push_vec;
-		self.pos += *push_vec;
+		if !self.freeze {
+			self.vel += *push_vec;
+			self.pos += *push_vec;
+		}
 	}
 
 	pub fn draw(&self) {
@@ -102,9 +103,18 @@ impl Dot {
 			return None;
 		}
 
-		let closes_projection = self.get_closest_projection(polygon);
-		if closes_projection.length() < self.radius {
-			return Some(closes_projection - closes_projection.normalize()*self.radius)
+		let closest_projection = self.get_closest_projection(polygon);
+		let radius_projection = closest_projection.normalize() * self.radius;
+
+		let is_center_inside = self.is_center_inside_polygon(polygon);
+		let is_partially_inside = closest_projection.length() < self.radius;
+
+		if is_center_inside {
+			return Some(closest_projection + radius_projection);
+		}
+
+		if is_partially_inside {
+			return Some(closest_projection - radius_projection);
 		}
 
 		None
@@ -118,5 +128,4 @@ impl Dot {
 			}
 		}
 	}
-
 }

@@ -1,6 +1,6 @@
 use entities::*;
-use ui::*;
 use macroquad::prelude::*;
+use ui::*;
 
 pub mod entities {
     pub mod dot;
@@ -57,8 +57,10 @@ async fn main() {
     );
 
     let mut dots: Vec<dot::Dot> = [].to_vec();
-    let mut polygons: Vec<polygon::Polygon> = [].to_vec();
+    let mut polygons: Vec<polygon::Polygon> = [polygon::Polygon::generate_floor()].to_vec();
     let mut drawing_polygon = incomplete_polygon::IncompletePolygon::new();
+
+    let mut soft_body = soft_body::SoftBody::new();
 
     loop {
         clear_background(BLACK);
@@ -128,7 +130,9 @@ async fn main() {
 
         drawing_polygon.draw();
 
-        // std::thread::sleep(std::time::Duration::from_millis(100));
+        soft_body.draw();
+
+        // std::thread::sleep(std::time::Duration::from_millis(500));
         next_frame().await
     }
 }
