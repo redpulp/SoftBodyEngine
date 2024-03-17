@@ -55,3 +55,7 @@ pub fn do_segments_intersect(segment1: &Segment, segment2: &Segment) -> bool {
         / denominator;
     (0. ..=1.).contains(&val1) && (0. ..=1.).contains(&val2)
 }
+
+pub fn close_to_equal(num1: f32, num2: f32) -> bool {
+    (num1 - num2).abs() < 0.001
+}
