@@ -1,9 +1,11 @@
+use super::super::utils::conversion::*;
+use super::super::utils::math::*;
 use super::polygon::*;
 use macroquad::prelude::*;
 
 const STD_COLOR: Color = WHITE;
-// const ERROR_COLOR: Color = RED;
-// const OK_COLOR: Color = GREEN;
+const ERROR_COLOR: Color = RED;
+const OK_COLOR: Color = GRAY;
 
 pub struct IncompletePolygon {
     pub points: Vec<Vec2>,
@@ -16,10 +18,11 @@ impl IncompletePolygon {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, polygons: &Vec<Polygon>) {
         self.points.iter().enumerate().for_each(|(i, point)| {
             let is_last_segment = i == self.points.len() - 1;
             let is_on_end = self.is_on_end();
+            let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
             let ending_point = if !is_last_segment {
                 self.points[i + 1]
@@ -27,19 +30,59 @@ impl IncompletePolygon {
                 if is_on_end {
                     self.points[0]
                 } else {
-                    vec2(mouse_position().0, mouse_position().1)
+                    mouse_position
                 }
             };
 
-            draw_line(
-                point[0],
-                point[1],
-                ending_point[0],
-                ending_point[1],
-                2.,
-                STD_COLOR,
-            );
+            if !is_last_segment {
+                draw_line(
+                    point[0],
+                    point[1],
+                    ending_point[0],
+                    ending_point[1],
+                    2.,
+                    STD_COLOR,
+                );
+            } else {
+                if self.is_intersecting_with_polygons(polygons) {
+                    draw_line(
+                        point[0],
+                        point[1],
+                        ending_point[0],
+                        ending_point[1],
+                        2.,
+                        ERROR_COLOR,
+                    );
+                } else {
+                    draw_line(
+                        point[0],
+                        point[1],
+                        ending_point[0],
+                        ending_point[1],
+                        2.,
+                        OK_COLOR,
+                    );
+                }
+            }
         });
+    }
+
+    pub fn is_intersecting_with_polygons(&self, polygons: &Vec<Polygon>) -> bool {
+        if self.points.len() > 0 {
+            polygons.iter().any(|poly| {
+                poly.segments().iter().any(|segment| {
+                    do_segments_intersect(
+                        &vec2_to_segments(
+                            self.points[self.points.len() - 1],
+                            vec2(mouse_position().0, mouse_position().1),
+                        ),
+                        &segment,
+                    )
+                })
+            })
+        } else {
+            false
+        }
     }
 
     pub fn is_on_end(&self) -> bool {

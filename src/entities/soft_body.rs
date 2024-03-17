@@ -6,33 +6,54 @@ use macroquad::prelude::*;
 const DAMPING_FACTOR: f32 = 0.5;
 const RIGIDITY: f32 = 8.;
 
+fn is_dot_on_border(dot: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
+    dot.pos[0] == corner1[0]
+        || dot.pos[1] == corner1[1]
+        || dot.pos[0] == corner2[0]
+        || dot.pos[1] == corner2[1]
+}
+
+fn are_dots_on_border(dot1: &Dot, dot2: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
+    is_dot_on_border(dot1, corner1, corner2)
+        && is_dot_on_border(dot2, corner1, corner2)
+        && (dot1.pos[0] == dot2.pos[0] || dot1.pos[1] == dot2.pos[1])
+}
+
 pub struct Spring {
     stiffness: f32,
     damping_factor: f32,
     rest_length: f32,
     index_1: usize,
     index_2: usize,
+    is_on_border: bool,
 }
 
 impl Spring {
-    pub fn new(dots: &Vec<Dot>, index_1: usize, index_2: usize, stiffness: f32) -> Spring {
+    pub fn new(
+        dots: &Vec<Dot>,
+        index_1: usize,
+        index_2: usize,
+        stiffness: f32,
+        is_on_border: bool,
+    ) -> Spring {
         Spring {
             index_1,
             index_2,
             rest_length: (dots[index_1].pos - dots[index_2].pos).length(),
             stiffness,
             damping_factor: DAMPING_FACTOR,
+            is_on_border,
         }
     }
 
-    pub fn draw(&self, dot1: &Dot, dot2: &Dot) {
+    pub fn draw(&self, dot1: &Dot, dot2: &Dot, color: Option<Color>) {
         draw_line(
             dot1.pos[0],
             dot1.pos[1],
             dot2.pos[0],
             dot2.pos[1],
             2.,
-            WHITE,
+            color.unwrap_or(WHITE),
         );
     }
 
@@ -114,6 +135,7 @@ fn generate_springs(
     dots: &Vec<Dot>,
     mut horizontal_distance: f32,
     mut vertical_distance: f32,
+    (corner1, corner2): (&Vec2, &Vec2),
 ) -> Vec<Spring> {
     // Rounding position to account of f32 approximations
     fn round(number_to_round: f32) -> f32 {
@@ -139,7 +161,15 @@ fn generate_springs(
                             || (distance_x == horizontal_distance
                                 && distance_y == vertical_distance))
                 })
-                .map(|inner_index| Spring::new(&dots, index, inner_index, RIGIDITY))
+                .map(|inner_index| {
+                    Spring::new(
+                        &dots,
+                        index,
+                        inner_index,
+                        RIGIDITY,
+                        are_dots_on_border(&dots[index], &dots[inner_index], corner1, corner2),
+                    )
+                })
                 .collect::<Vec<Spring>>()
         })
         .collect::<Vec<Spring>>()
@@ -152,10 +182,15 @@ pub struct SoftBody {
 
 impl SoftBody {
     pub fn new(pos1: f32, pos2: f32) -> SoftBody {
-        let (dots, (horizontal_step, vertical_step)) =
-            generate_dots(vec2(pos1 - 80., pos2 - 100.), vec2(pos1 + 80., pos2 + 20.));
+        let (corner1, corner2) = (vec2(pos1 - 80., pos2 - 100.), vec2(pos1 + 80., pos2 + 20.));
+        let (dots, (horizontal_step, vertical_step)) = generate_dots(corner1, corner2);
         SoftBody {
-            springs: generate_springs(&dots, horizontal_step.abs(), vertical_step.abs()),
+            springs: generate_springs(
+                &dots,
+                horizontal_step.abs(),
+                vertical_step.abs(),
+                (&corner1, &corner2),
+            ),
             points: dots,
         }
     }
@@ -163,7 +198,23 @@ impl SoftBody {
     pub fn draw(&self) {
         self.points.iter().for_each(|point| point.draw());
         self.springs.iter().for_each(|spring| {
-            spring.draw(&self.points[spring.index_1], &self.points[spring.index_2])
+            spring.draw(
+                &self.points[spring.index_1],
+                &self.points[spring.index_2],
+                None,
+            )
+        });
+    }
+
+    pub fn draw_border(&self) {
+        self.springs.iter().for_each(|spring| {
+            if spring.is_on_border {
+                spring.draw(
+                    &self.points[spring.index_1],
+                    &self.points[spring.index_2],
+                    Some(YELLOW),
+                )
+            }
         });
     }
 

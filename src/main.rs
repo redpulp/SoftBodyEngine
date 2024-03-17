@@ -13,6 +13,10 @@ pub mod entities {
 }
 
 pub mod ui;
+pub mod utils {
+    pub mod conversion;
+    pub mod math;
+}
 
 #[macroquad::main("Soft Body Simulation")]
 async fn main() {
@@ -147,13 +151,13 @@ async fn main() {
         polygons.iter().for_each(|poly| poly.draw());
 
         // Drawing In-progress polygon
-        drawing_polygon.draw();
+        drawing_polygon.draw(&polygons);
 
         soft_body.update();
         polygons.iter().for_each(|poly| {
             soft_body.handle_collision(poly);
         });
-        soft_body.draw();
+        soft_body.draw_border();
 
         draw_mouse_icon(&mut creating_entity);
 
