@@ -11,14 +11,18 @@ pub struct IncompletePolygon {
     pub points: Vec<Vec2>,
 }
 
+impl Default for IncompletePolygon {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IncompletePolygon {
     pub fn new() -> Self {
-        Self {
-            points: [].to_vec(),
-        }
+        Self { points: vec![] }
     }
 
-    pub fn draw(&self, polygons: &Vec<Polygon>) {
+    pub fn draw(&self, polygons: &[Polygon]) {
         self.points.iter().enumerate().for_each(|(i, point)| {
             let is_last_segment = i == self.points.len() - 1;
             let is_on_end = self.is_on_start();
@@ -52,7 +56,7 @@ impl IncompletePolygon {
         });
     }
 
-    pub fn is_intersecting_with_polygons(&self, polygons: &Vec<Polygon>) -> bool {
+    pub fn is_intersecting_with_polygons(&self, polygons: &[Polygon]) -> bool {
         if !self.points.is_empty() {
             polygons.iter().any(|poly| {
                 poly.segments().iter().any(|segment| {
@@ -95,6 +99,6 @@ impl IncompletePolygon {
     }
 
     pub fn reset(&mut self) {
-        self.points = [].to_vec();
+        self.points = vec![];
     }
 }

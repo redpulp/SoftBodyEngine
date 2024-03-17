@@ -11,7 +11,7 @@ pub struct BoundingBox {
 }
 
 impl BoundingBox {
-    pub fn new(points: &Vec<(f32, f32)>) -> BoundingBox {
+    pub fn new(points: &[(f32, f32)]) -> BoundingBox {
         let (mut min_hor, mut max_hor, mut min_ver, mut max_ver): (f32, f32, f32, f32) =
             (points[0].0, points[0].0, points[0].1, points[0].1);
         for point in points {

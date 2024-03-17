@@ -71,7 +71,7 @@ async fn main() {
                     }
                     if ui.button(reset_button.clone()).clicked() {
                         drawing_polygon.reset();
-                        polygons = [].to_vec();
+                        polygons = vec![];
                     }
                 });
         });
