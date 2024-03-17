@@ -79,7 +79,7 @@ async fn main() {
         polygons.iter().for_each(|poly| poly.draw());
 
         // Drawing In-progress polygon
-        drawing_polygon.draw(&polygons);
+        drawing_polygon.draw(&polygons, &soft_body);
 
         soft_body.update_runge_kutta();
         polygons.iter().for_each(|poly| {
@@ -93,7 +93,8 @@ async fn main() {
 
         draw_mouse_icon(&mut creating_entity);
 
-        // std::thread::sleep(std::time::Duration::from_millis(300));
+        // For lower FPS
+        //std::thread::sleep(std::time::Duration::from_millis(50));
 
         next_frame().await
     }

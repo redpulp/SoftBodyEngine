@@ -11,7 +11,7 @@ pub struct BoundingBox {
 }
 
 impl BoundingBox {
-    pub fn new(points: &[(f32, f32)]) -> BoundingBox {
+    pub fn new(points: &[(f32, f32)]) -> Self {
         let (mut min_hor, mut max_hor, mut min_ver, mut max_ver): (f32, f32, f32, f32) =
             (points[0].0, points[0].0, points[0].1, points[0].1);
         for point in points {
@@ -20,7 +20,7 @@ impl BoundingBox {
             min_ver = if min_ver < point.1 { min_ver } else { point.1 };
             max_ver = if max_ver > point.1 { max_ver } else { point.1 };
         }
-        BoundingBox {
+        Self {
             min_hor,
             max_hor,
             min_ver,

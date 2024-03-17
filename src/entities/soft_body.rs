@@ -24,9 +24,9 @@ pub struct Spring {
     stiffness: f32,
     damping_factor: f32,
     rest_length: f32,
-    index_1: usize,
-    index_2: usize,
-    is_on_border: bool,
+    pub index_1: usize,
+    pub index_2: usize,
+    pub is_on_border: bool,
 }
 
 impl Spring {
@@ -141,6 +141,7 @@ fn generate_springs(
     horizontal_distance = round(horizontal_distance);
     vertical_distance = round(vertical_distance);
 
+    // This is horrible
     dots.iter()
         .enumerate()
         .flat_map(|(index, dot)| {
@@ -183,8 +184,8 @@ fn generate_springs(
 }
 
 pub struct SoftBody {
-    points: Vec<Dot>,
-    springs: Vec<Spring>,
+    pub points: Vec<Dot>,
+    pub springs: Vec<Spring>,
 }
 
 impl SoftBody {
