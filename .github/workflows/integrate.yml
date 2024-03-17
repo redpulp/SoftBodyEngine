@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  format-style:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,8 +21,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - run: rustup component add clippy
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          components: clippy
+          override: true
       - uses: actions-rs/clippy-check@v1
         with:
-          args: --all-features
           token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
