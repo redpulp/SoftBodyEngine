@@ -52,6 +52,8 @@ impl Segment {
 		}
 	}
 
+	// Cast a vertical ray from the given point
+	// Returns true if the ray passes through the segment
 	pub fn vertical_raycast(&self, point: &Vec2) -> bool {
 		let Segment { x1, y1, x2, y2: _ } = self;
 		let x_range = std::ops::Range {

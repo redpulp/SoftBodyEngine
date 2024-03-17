@@ -7,6 +7,7 @@ pub mod entities {
     pub mod incomplete_polygon;
     pub mod polygon;
     pub mod segment;
+    pub mod soft_body;
 }
 
 pub mod ui;
