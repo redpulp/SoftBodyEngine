@@ -1,3 +1,4 @@
+use egui::{color::*, *};
 use entities::*;
 use macroquad::prelude::*;
 use ui::*;
@@ -27,9 +28,69 @@ async fn main() {
 
     let mut soft_body = soft_body::SoftBody::new(screen_width() / 2., screen_height() / 2.);
 
+    // Forgive this ugly button setup
+    let mut polygon_button = egui::text::LayoutJob::default();
+    polygon_button.append(
+        "⬜ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::from_rgb(99, 75, 255),
+            ..Default::default()
+        },
+    );
+    polygon_button.append(
+        "Create Polygon",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    let mut reset_button = egui::text::LayoutJob::default();
+    reset_button.append(
+        "⟲ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::RED,
+            ..Default::default()
+        },
+    );
+    reset_button.append(
+        "Reset Canvas",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    let mut soft_body_button = egui::text::LayoutJob::default();
+    soft_body_button.append(
+        "⭕ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::YELLOW,
+            ..Default::default()
+        },
+    );
+    soft_body_button.append(
+        "Create Soft-body",
+        0.0,
+        TextFormat {
+            style: TextStyle::Body,
+            color: Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
     loop {
         clear_background(BLACK);
-        draw_mouse_icon(&mut creating_entity);
         let is_mouse_on_buttons = mouse_position().0 < buttons_window_dimensions.0
             && mouse_position().1 < buttons_window_dimensions.1;
         let is_creating_polygon = drawing_polygon.points.len() > 0;
@@ -40,22 +101,28 @@ async fn main() {
                     min: egui::Pos2::new(0., 0.),
                     max: egui::Pos2::new(200., 100.),
                 })
+                .collapsible(false)
                 .show(egui_ctx, |ui| {
-                    let mut scalar = 12.;
-                    ui.add(egui::Slider::new(&mut scalar, 0.0..=360.0).suffix("°"));
-                    if ui.button("Soft-body creation tool").clicked() {
-                        creating_entity = Entities::Dot;
-                    }
-                    if !is_creating_polygon {
-                        if ui.button("Polygon creation tool").clicked() {
-                            creating_entity = Entities::Polygon;
-                        }
-                    } else {
-                        if ui.button("Stop Drawing").clicked() {
+                    // let mut scalar = 12;
+                    // ui.add(egui::Slider::new(&mut scalar, 0..=12).suffix("°"));
+
+                    if is_creating_polygon {
+                        if ui
+                            .button(RichText::new("❌ Stop Drawing").color(Color32::RED))
+                            .clicked()
+                        {
                             drawing_polygon.reset();
                         }
+                    } else {
+                        if ui.button(soft_body_button.clone()).clicked() {
+                            creating_entity = Entities::Dot;
+                        }
+                        if ui.button(polygon_button.clone()).clicked() {
+                            creating_entity = Entities::Polygon;
+                        }
                     }
-                    if ui.button("Reset Canvas").clicked() {
+                    ui.separator();
+                    if ui.button(reset_button.clone()).clicked() {
                         drawing_polygon.reset();
                         polygons = [].to_vec();
                     }
@@ -87,6 +154,8 @@ async fn main() {
             soft_body.handle_collision(poly);
         });
         soft_body.draw();
+
+        draw_mouse_icon(&mut creating_entity);
 
         // std::thread::sleep(std::time::Duration::from_millis(300));
         next_frame().await
