@@ -1,0 +1,13 @@
+{
+  "name": "build",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wasm-loader.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "build": "echo SoftBodySimulation is has been built!"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
