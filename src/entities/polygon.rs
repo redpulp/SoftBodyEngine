@@ -1,5 +1,5 @@
-use super::super::utils::conversion::*;
 use super::segment::*;
+use crate::utils::conversion::*;
 use macroquad::prelude::*;
 
 #[derive(Clone, Debug)]

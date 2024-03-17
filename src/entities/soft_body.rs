@@ -1,7 +1,7 @@
-use super::super::utils::math::close_to_equal;
 use super::dot::*;
 use super::interaction::*;
 use super::polygon::*;
+use crate::utils::math::close_to_equal;
 use macroquad::prelude::*;
 
 const DAMPING_FACTOR: f32 = 0.8;

@@ -1,6 +1,6 @@
-use super::super::utils::math::*;
 use super::polygon::*;
 use super::segment::*;
+use crate::utils::math::*;
 use macroquad::prelude::*;
 
 const STD_COLOR: Color = WHITE;
