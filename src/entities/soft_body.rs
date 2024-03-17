@@ -3,8 +3,8 @@ use super::interaction::*;
 use super::polygon::*;
 use macroquad::prelude::*;
 
-const DAMPING_FACTOR: f32 = 0.5;
-const RIGIDITY: f32 = 8.;
+const DAMPING_FACTOR: f32 = 0.8;
+const RIGIDITY: f32 = 5.;
 
 fn is_dot_on_border(dot: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
     dot.pos[0] == corner1[0]
@@ -18,7 +18,7 @@ fn are_dots_on_border(dot1: &Dot, dot2: &Dot, corner1: &Vec2, corner2: &Vec2) ->
         && is_dot_on_border(dot2, corner1, corner2)
         && (dot1.pos[0] == dot2.pos[0] || dot1.pos[1] == dot2.pos[1])
 }
-
+#[derive(Copy, Clone)]
 pub struct Spring {
     stiffness: f32,
     damping_factor: f32,
@@ -57,17 +57,17 @@ impl Spring {
         );
     }
 
-    fn get_hooke_force(&self, dot1: &Dot, dot2: &Dot) -> f32 {
-        ((dot1.pos - dot2.pos).length() - self.rest_length) * self.stiffness
+    fn get_hooke_force(&self, pos1: Vec2, pos2: Vec2) -> f32 {
+        ((pos1 - pos2).length() - self.rest_length) * self.stiffness
     }
 
-    fn get_damping(&self, dot1: &Dot, dot2: &Dot) -> f32 {
-        (dot1.pos - dot2.pos).normalize().dot(dot1.vel - dot2.vel) * self.damping_factor
+    fn get_damping(&self, pos1: Vec2, pos2: Vec2, vel1: Vec2, vel2: Vec2) -> f32 {
+        (pos1 - pos2).normalize().dot(vel1 - vel2) * self.damping_factor
     }
 
-    pub fn get_force(&self, dot1: &Dot, dot2: &Dot) -> Vec2 {
-        (self.get_hooke_force(dot1, dot2) + self.get_damping(dot1, dot2))
-            * ((dot1.pos - dot2.pos).normalize())
+    pub fn get_force(&self, pos1: Vec2, pos2: Vec2, vel1: Vec2, vel2: Vec2) -> Vec2 {
+        (self.get_hooke_force(pos1, pos2) + self.get_damping(pos1, pos2, vel1, vel2))
+            * ((pos1 - pos2).normalize())
     }
 }
 
@@ -115,16 +115,13 @@ fn generate_dots(top_left_corner: Vec2, bottom_right_corner: Vec2) -> (Vec<Dot>,
         (bottom_right_corner[1] - top_left_corner[1]) / (vertical_subdivisions as f32);
     for horizontal_pos in 0..horizontal_subdivisions + 1 {
         for vertical_pos in 0..vertical_subdivisions + 1 {
-            dots.push(Dot::new(
-                Some(
-                    top_left_corner
-                        + vec2(
-                            (horizontal_pos as f32) * horizontal_step,
-                            (vertical_pos as f32) * vertical_step,
-                        ),
-                ),
-                None,
-            ));
+            dots.push(Dot::new(Some(
+                top_left_corner
+                    + vec2(
+                        (horizontal_pos as f32) * horizontal_step,
+                        (vertical_pos as f32) * vertical_step,
+                    ),
+            )));
         }
     }
     (dots, (horizontal_step, vertical_step))
@@ -166,7 +163,17 @@ fn generate_springs(
                         &dots,
                         index,
                         inner_index,
-                        RIGIDITY,
+                        RIGIDITY
+                            + if are_dots_on_border(
+                                &dots[index],
+                                &dots[inner_index],
+                                corner1,
+                                corner2,
+                            ) {
+                                2.
+                            } else {
+                                0.
+                            },
                         are_dots_on_border(&dots[index], &dots[inner_index], corner1, corner2),
                     )
                 })
@@ -218,12 +225,15 @@ impl SoftBody {
         });
     }
 
-    pub fn update(&mut self) {
+    pub fn update_euler(&mut self) {
         self.springs.iter().for_each(|spring| {
             if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
-                let spring_acceleration = spring
-                    .get_force(&self.points[spring.index_1], &self.points[spring.index_2])
-                    / self.points[spring.index_1].mass;
+                let spring_acceleration = spring.get_force(
+                    self.points[spring.index_1].pos,
+                    self.points[spring.index_2].pos,
+                    self.points[spring.index_1].vel,
+                    self.points[spring.index_2].vel,
+                );
 
                 let points = &mut self.points;
 
@@ -232,11 +242,65 @@ impl SoftBody {
             }
         });
 
-        self.points.iter_mut().for_each(|point| point.update());
+        self.points.iter_mut().for_each(|point| point.add_gravity());
+        self.points.iter_mut().for_each(|point| point.update(false));
+    }
 
+    pub fn update_runge_kutta(&mut self) {
+        self.springs.clone().iter().for_each(|spring| {
+            if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
+                self.update_spring_runge_kutta(&spring);
+            }
+        });
+        self.points.iter_mut().for_each(|point| point.update(true));
         self.springs.iter().for_each(|spring| {
             handle_point_point_collision(&mut self.points, spring.index_1, spring.index_2);
-        })
+        });
+    }
+
+    fn update_spring_runge_kutta(&mut self, spring: &Spring) {
+        let get_acceleration = |position_1: Vec2,
+                                position_2: Vec2,
+                                velocity_1: Vec2,
+                                velocity_2: Vec2|
+         -> (Vec2, Vec2) {
+            let spring_force = spring.get_force(position_1, position_2, velocity_1, velocity_2);
+            (
+                -spring_force + vec2(0., 0.68),
+                spring_force + vec2(0., 0.68),
+            )
+        };
+
+        let mut point1 = self.points[spring.index_1];
+        let mut point2 = self.points[spring.index_2];
+
+        let (k1_1, k1_2) = get_acceleration(point1.pos, point2.pos, point1.vel, point2.vel);
+        let update = handle_temp_point_point_collision(point1.pos, point2.pos);
+        if update.is_some() {
+            point1.pos = update.unwrap();
+            point2.pos = -update.unwrap();
+        }
+        let k1_1_halved = k1_1 / 2.;
+        let k1_2_halved = k1_2 / 2.;
+        let (k2_1, k2_2) = get_acceleration(
+            point1.pos + (k1_1_halved * DELTA_T_RUNGE_KUTTA),
+            point2.pos + (k1_2_halved * DELTA_T_RUNGE_KUTTA),
+            point1.vel + k1_1_halved,
+            point2.vel + k1_2_halved,
+        );
+        let k2_1_halved = k2_1 / 2.;
+        let k2_2_halved = k2_2 / 2.;
+        let (k3_1, k3_2) = get_acceleration(
+            point1.pos + (k2_1_halved * DELTA_T_RUNGE_KUTTA),
+            point2.pos + (k2_2_halved * DELTA_T_RUNGE_KUTTA),
+            point1.vel + k2_1_halved,
+            point2.vel + k2_2_halved,
+        );
+
+        let push_vec_1 = (DELTA_T_RUNGE_KUTTA / 6.) * (k1_1 + (0.2 * k2_1) + (0.2 * k3_1));
+        let push_vec_2 = (DELTA_T_RUNGE_KUTTA / 6.) * (k1_2 + (0.2 * k2_2) + (0.2 * k3_2));
+        self.points[spring.index_1].add_acceleration(push_vec_1);
+        self.points[spring.index_2].add_acceleration(push_vec_2);
     }
 
     pub fn handle_collision(&mut self, polygon: &Polygon) {

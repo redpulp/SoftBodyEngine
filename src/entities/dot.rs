@@ -1,28 +1,26 @@
 use super::polygon::*;
 use macroquad::prelude::*;
 
-const DELTA_T: f32 = 0.1;
-const RADIUS: f32 = 5.;
-const MASS: f32 = 1.;
+pub const DELTA_T_EULER: f32 = 0.1;
+pub const DELTA_T_RUNGE_KUTTA: f32 = 0.4;
+pub const RADIUS: f32 = 5.;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Dot {
     pub pos: Vec2,
     pub vel: Vec2,
     pub radius: f32,
-    pub mass: f32,
     prev_pos: Vec2,
-    acceleration: Vec2,
+    pub acceleration: Vec2,
     freeze: bool,
 }
 
 impl Dot {
-    pub fn new(pos: Option<Vec2>, mass: Option<f32>) -> Dot {
+    pub fn new(pos: Option<Vec2>) -> Dot {
         let initial_position = pos.unwrap_or(vec2(screen_width() / 2., screen_height() / 2.));
         Dot {
             pos: initial_position,
             prev_pos: initial_position,
-            mass: mass.unwrap_or(MASS),
             radius: RADIUS,
             vel: vec2(0., 0.),
             acceleration: vec2(0., 0.),
@@ -33,33 +31,41 @@ impl Dot {
         (self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
     }
 
-    fn add_gravity(&mut self) {
-        self.acceleration += vec2(0., 9.8);
-    }
-
-    pub fn update(&mut self) {
-        self.add_gravity();
+    pub fn update(&mut self, runge_kutta: bool) {
         self.prev_pos = self.pos;
+        let delta = if runge_kutta {
+            DELTA_T_RUNGE_KUTTA
+        } else {
+            DELTA_T_EULER
+        };
         if !self.freeze {
-            self.vel += self.acceleration * DELTA_T;
-            self.vel = if self.vel.length() < 200. {
+            self.vel += self.acceleration * delta;
+            self.vel = if self.vel.length() < 100. {
                 self.vel
             } else {
                 self.vel.normalize() * 10.
             };
-            self.pos += self.vel * DELTA_T;
+            self.pos += self.vel * delta;
         }
         self.acceleration = vec2(0., 0.);
+    }
+
+    pub fn update_runge(&mut self, push_vec: &Vec2) {
+        self.pos += *push_vec;
+        self.vel = (self.pos - self.prev_pos) / DELTA_T_RUNGE_KUTTA;
     }
 
     pub fn add_acceleration(&mut self, acceleration: Vec2) {
         self.acceleration += acceleration;
     }
 
+    pub fn add_gravity(&mut self) {
+        self.acceleration += vec2(0., 9.8);
+    }
+
     pub fn push(&mut self, push_vec: &Vec2) {
         if !self.freeze {
-            self.acceleration += *push_vec;
-            self.vel += *push_vec;
+            self.acceleration += *push_vec * 10.;
             self.pos += *push_vec;
         }
     }

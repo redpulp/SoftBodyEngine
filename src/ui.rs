@@ -49,7 +49,7 @@ pub fn spawn_entity(
     }
 }
 
-pub fn spawn_buttons() -> [LayoutJob; 4] {
+pub fn spawn_buttons() -> [LayoutJob; 6] {
     let mut polygon_button = LayoutJob::default();
     polygon_button.append(
         "⬜ ",
@@ -130,10 +130,52 @@ pub fn spawn_buttons() -> [LayoutJob; 4] {
         },
     );
 
+    let mut show_skeleton_button = LayoutJob::default();
+    show_skeleton_button.append(
+        "❇ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+    show_skeleton_button.append(
+        "Show Soft-body Skeleton",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    let mut show_border_button = LayoutJob::default();
+    show_border_button.append(
+        "❇ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+    show_border_button.append(
+        "Show Soft-body Border",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
     return [
         polygon_button,
         stop_drawing_button,
         reset_button,
         soft_body_button,
+        show_skeleton_button,
+        show_border_button,
     ];
 }
