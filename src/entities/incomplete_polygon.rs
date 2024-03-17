@@ -18,14 +18,16 @@ impl IncompletePolygon {
 
   pub fn draw(&self) {
     self.points.iter().enumerate().for_each(|(i, point)| {
-      let ending_point: Vec2;
-      if i != self.points.len() - 1 {
-        ending_point = self.points[i + 1]
+      let is_last_segment = i == self.points.len() - 1;
+      let is_on_end = self.is_on_end();
+
+      let ending_point = if !is_last_segment {
+        self.points[i + 1]
       } else {
-        if self.is_on_end() {
-          ending_point = self.points[0]
+        if is_on_end {
+          self.points[0]
         } else {
-          ending_point = vec2(mouse_position().0, mouse_position().1)
+          vec2(mouse_position().0, mouse_position().1)
         }
       };
 
@@ -44,7 +46,7 @@ impl IncompletePolygon {
     if self.points.len() > 1 {
       let mouse_ending_distance =
         (vec2(mouse_position().0, mouse_position().1) - self.points[0]).length();
-      mouse_ending_distance < 50.
+      mouse_ending_distance < 30.
     } else {
       false
     }
