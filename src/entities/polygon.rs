@@ -47,13 +47,12 @@ impl Polygon {
 
     pub fn generate_floor() -> Polygon {
         Polygon::new(
-            [
+            vec![
                 (20., screen_height() - 50.),
                 (screen_width() - 20., screen_height() - 50.),
                 (screen_width() - 20., screen_height() - 20.),
                 (20., screen_height() - 20.),
-            ]
-            .to_vec(),
+            ],
             None,
         )
     }

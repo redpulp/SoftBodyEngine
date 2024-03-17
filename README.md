@@ -12,7 +12,7 @@ And change the geomtery of the environment
 
 ## How to run
 
-Until I set up Docker or WASM, `cargo run` (cargo required).
+[Hosted version](https://peaceful-ramanujan-d8564a.netlify.app/) or `cargo run` to run locally (cargo required).
 
 ## Features left to complete
 

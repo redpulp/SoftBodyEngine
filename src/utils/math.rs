@@ -29,23 +29,17 @@ pub fn do_segments_intersect(segment1: &Segment, segment2: &Segment) -> bool {
         (origin_segment_1.x * origin_segment_2.y) - (origin_segment_1.y * origin_segment_2.x);
 
     if numerator == 0. && denominator == 0. {
-        return !all_equal(
-            [
-                negative_difference(segment1.p1.x, segment2.p1.x),
-                negative_difference(segment1.p1.x, segment2.p2.x),
-                negative_difference(segment1.p2.x, segment2.p1.x),
-                negative_difference(segment1.p2.x, segment2.p2.x),
-            ]
-            .to_vec(),
-        ) || !all_equal(
-            [
-                negative_difference(segment1.p1.y, segment2.p1.y),
-                negative_difference(segment1.p1.y, segment2.p2.y),
-                negative_difference(segment1.p2.y, segment2.p1.y),
-                negative_difference(segment1.p2.y, segment2.p2.y),
-            ]
-            .to_vec(),
-        );
+        return !all_equal(vec![
+            negative_difference(segment1.p1.x, segment2.p1.x),
+            negative_difference(segment1.p1.x, segment2.p2.x),
+            negative_difference(segment1.p2.x, segment2.p1.x),
+            negative_difference(segment1.p2.x, segment2.p2.x),
+        ]) || !all_equal(vec![
+            negative_difference(segment1.p1.y, segment2.p1.y),
+            negative_difference(segment1.p1.y, segment2.p2.y),
+            negative_difference(segment1.p2.y, segment2.p1.y),
+            negative_difference(segment1.p2.y, segment2.p2.y),
+        ]);
     }
     if denominator == 0. {
         return false;
