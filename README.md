@@ -11,6 +11,7 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 - [x] Drawing basic entities
 - [x] Basic rigid body dynamics
 - [x] User interaction to create/delete entities
+- [ ] Create UI restrictions
 - [ ] Soft-body dynamics
 - [ ] Soft-body generation
 - [ ] Soft-body user interaction

@@ -6,6 +6,7 @@ const DELTA_T: f32 = 0.1;
 #[derive(Clone, Debug)]
 pub struct Dot {
 	pos: Vec2,
+	prev_pos: Vec2,
 	radius: f32,
 	vel: Vec2,
 	force: Vec2,
@@ -15,8 +16,10 @@ pub struct Dot {
 
 impl Dot {
 	pub fn new(pos: Option<Vec2>, mass: Option<f32>) -> Dot {
+		let initial_position = pos.unwrap_or(vec2(screen_width() / 2., screen_height() / 2.));
 		Dot {
-			pos: pos.unwrap_or(vec2(screen_width() / 2., screen_height() / 2.)),
+			pos: initial_position,
+			prev_pos: initial_position,
 			mass: mass.unwrap_or(1.),
 			radius: 6.,
 			vel: vec2(0., 0.),
@@ -35,6 +38,7 @@ impl Dot {
 
 	pub fn update(&mut self) {
 		self.add_gravity();
+		self.prev_pos = self.pos; 
 		if !self.freeze {
 			self.vel += (self.force * DELTA_T) / self.mass;
 			self.pos += self.vel * DELTA_T;
@@ -78,10 +82,6 @@ impl Dot {
 			.filter(|projection| projection.is_some())
 			.map(|projection| projection.unwrap() - self.pos)
 			.collect::<Vec<Vec2>>();
-
-		projections.iter().for_each(|proj| {
-			draw_line(self.pos[0], self.pos[1], self.pos[0] + proj[0], self.pos[1] + proj[1], 2., RED);
-		});
 
 		projections.iter().fold(
 			vec2(f32::INFINITY, f32::INFINITY),
