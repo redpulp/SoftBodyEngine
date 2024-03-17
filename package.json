@@ -1,0 +1,20 @@
+{
+  "name": "soft-body-simulation",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Static website is already built\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/userakai/SoftBodyEngine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/userakai/SoftBodyEngine/issues"
+  },
+  "homepage": "https://github.com/userakai/SoftBodyEngine#readme"
+}
