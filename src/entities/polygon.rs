@@ -42,7 +42,7 @@ impl Polygon {
 			.iter()
 			.enumerate()
 			.map(|(i, point)| {
-				let point1 = point.clone();
+				let point1 = point;
 				let point2 = self.points[if i == self.points.len() - 1 { 0 } else { i + 1 }];
 				Segment {
 					x1: point1.0,

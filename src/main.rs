@@ -127,6 +127,7 @@ async fn main() {
 
         drawing_polygon.draw();
 
+        // std::thread::sleep(std::time::Duration::from_millis(100));
         next_frame().await
     }
 }
