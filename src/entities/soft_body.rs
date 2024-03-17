@@ -2,10 +2,11 @@ use super::dot::*;
 use super::interaction::*;
 use super::polygon::*;
 use crate::utils::math::close_to_equal;
+use crate::utils::math::runge_kutta_integration;
 use macroquad::prelude::*;
 
 const DAMPING_FACTOR: f32 = 0.8;
-const RIGIDITY: f32 = 6.;
+const STIFFNESS: f32 = 10.;
 
 fn is_dot_on_border(dot: &Dot, corner1: &Vec2, corner2: &Vec2) -> bool {
     close_to_equal(dot.pos[0], corner1[0])
@@ -164,7 +165,7 @@ fn generate_springs(
                         dots,
                         index,
                         inner_index,
-                        RIGIDITY
+                        STIFFNESS
                             + if are_dots_on_border(
                                 &dots[index],
                                 &dots[inner_index],
@@ -229,7 +230,7 @@ impl SoftBody {
     pub fn update_runge_kutta(&mut self) {
         self.springs.clone().iter().for_each(|spring| {
             if self.points[spring.index_1].pos != self.points[spring.index_2].pos {
-                self.update_spring_runge_kutta(spring);
+                self.update_masses_acceleration(spring);
             }
         });
         self.points.iter_mut().for_each(|point| point.update());
@@ -238,13 +239,14 @@ impl SoftBody {
         });
     }
 
-    fn update_spring_runge_kutta(&mut self, spring: &Spring) {
-        let get_acceleration = |position_1: Vec2,
-                                position_2: Vec2,
-                                velocity_1: Vec2,
-                                velocity_2: Vec2|
-         -> (Vec2, Vec2) {
+    fn update_masses_acceleration(&mut self, spring: &Spring) {
+        let get_acceleration = move |position_1: Vec2,
+                                     position_2: Vec2,
+                                     velocity_1: Vec2,
+                                     velocity_2: Vec2|
+              -> (Vec2, Vec2) {
             let spring_force = spring.get_force(position_1, position_2, velocity_1, velocity_2);
+
             (
                 -spring_force + vec2(0., 0.68),
                 spring_force + vec2(0., 0.68),
@@ -254,26 +256,14 @@ impl SoftBody {
         let point1 = self.points[spring.index_1];
         let point2 = self.points[spring.index_2];
 
-        let (k1_1, k1_2) = get_acceleration(point1.pos, point2.pos, point1.vel, point2.vel);
-        let k1_1_halved = k1_1 / 2.;
-        let k1_2_halved = k1_2 / 2.;
-        let (k2_1, k2_2) = get_acceleration(
-            point1.pos + (k1_1_halved * DELTA_T_RUNGE_KUTTA),
-            point2.pos + (k1_2_halved * DELTA_T_RUNGE_KUTTA),
-            point1.vel + k1_1_halved,
-            point2.vel + k1_2_halved,
-        );
-        let k2_1_halved = k2_1 / 2.;
-        let k2_2_halved = k2_2 / 2.;
-        let (k3_1, k3_2) = get_acceleration(
-            point1.pos + (k2_1_halved * DELTA_T_RUNGE_KUTTA),
-            point2.pos + (k2_2_halved * DELTA_T_RUNGE_KUTTA),
-            point1.vel + k2_1_halved,
-            point2.vel + k2_2_halved,
+        let (push_vec_1, push_vec_2) = runge_kutta_integration(
+            &get_acceleration,
+            point1.pos,
+            point2.pos,
+            point1.vel,
+            point2.vel,
         );
 
-        let push_vec_1 = (DELTA_T_RUNGE_KUTTA / 6.) * (k1_1 + (0.2 * k2_1) + (0.2 * k3_1));
-        let push_vec_2 = (DELTA_T_RUNGE_KUTTA / 6.) * (k1_2 + (0.2 * k2_2) + (0.2 * k3_2));
         self.points[spring.index_1].add_acceleration(push_vec_1);
         self.points[spring.index_2].add_acceleration(push_vec_2);
     }

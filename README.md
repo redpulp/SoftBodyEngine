@@ -45,24 +45,23 @@ Every slope of the integration ($k$) can be calculated through the midpoint of t
 
 $$
 \begin{aligned}
-& k_1 = f(t, y_t) \\
-& k_2 = f(t + \frac{h}{2}, y_t + \frac{k_1}{2})  \\
-& k_3 = f(t + \frac{h}{2}, y_t + \frac{k_2}{2}) \\
-& k_4 = f(t + h, y_t + k_3)
+& k_1 = hf(t, y_t) \\
+& k_2 = hf(t + \frac{h}{2}, y_t + \frac{k_1}{2})  \\
+& k_3 = hf(t + \frac{h}{2}, y_t + \frac{k_2}{2}) \\
+& k_4 = hf(t + h, y_t + k_3)
 \end{aligned}
 $$
 
 So the final formula will be:
-$$y_{t+h} = y_t + \frac{h}{6}k_1 + \frac{h}{3}k_2 + \frac{h}{3}k_3 + \frac{h}{6}k_4$$
+$$y_{t+h} = y_t + \frac{1}{6}k_1 + \frac{1}{3}k_2 + \frac{1}{3}k_3 + \frac{1}{6}k_4$$
 
-Or, event better:
-$$y_{t+h} = y_t + \frac{h}{6}(k_1 + 2k_2+ 2k_3 + k_4)$$
+Or, even better:
+$$y_{t+h} = y_t + \frac{1}{6}(k_1 + 2k_2+ 2k_3 + k_4)$$
 
-We'll iteratevely run this calculation with the motion obtained by the spring force as the function $f$.
+We'll iteratevely run this calculation with the motion obtained by the spring force represented as the function $f$
 
 ## TODOs
 
-- Prevent tunnelling
 - Prevent self collision
 - Add friction between masses and polygons
 - Add bend and shear mechanics
