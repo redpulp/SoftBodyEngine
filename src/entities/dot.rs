@@ -16,17 +16,17 @@ pub struct Dot {
 impl Dot {
 	pub fn new(pos: Option<Vec2>, mass: Option<f32>) -> Dot {
 		Dot {
-			pos: pos.unwrap_or(Vec2::new(screen_width() / 2., screen_height() / 2.)),
+			pos: pos.unwrap_or(vec2(screen_width() / 2., screen_height() / 2.)),
 			mass: mass.unwrap_or(1.),
-			radius: 10.,
-			vel: Vec2::new(0., 0.),
-			force: Vec2::new(0., 0.),
+			radius: 6.,
+			vel: vec2(0., 0.),
+			force: vec2(0., 0.),
 			freeze: false,
 		}
 	}
 
 	pub fn update(&mut self) {
-		self.force = Vec2::new(0., 9.8 * self.mass);
+		self.force = vec2(0., 9.8 * self.mass);
 		if !self.freeze {
 			self.vel += (self.force * DELTA_T) / self.mass;
 			self.pos += self.vel * DELTA_T;
@@ -70,7 +70,7 @@ impl Dot {
 			.collect::<Vec<Vec2>>();
 
 		projections.iter().fold(
-			Vec2::new(f32::INFINITY, f32::INFINITY),
+			vec2(f32::INFINITY, f32::INFINITY),
 			|distance1, &distance2| {
 				if distance1.length() < distance2.length() {
 					distance1
@@ -111,5 +111,9 @@ impl Dot {
 				self.push(&dot);
 			}
 		}
+	}
+
+	pub fn is_out_of_bounds(&self) -> bool {
+		(self.pos[0]).abs() > screen_width() * 2. || (self.pos[1]).abs() > screen_height() * 2.
 	}
 }

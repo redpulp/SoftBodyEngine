@@ -1,5 +1,5 @@
 ## What is this project
-A Work in Progress basic soft-body simulation, using the Macroquad library to handle the graphics.
+A Work in Progress basic physics engine, using [Macroquad](https://macroquad.rs/) to handle the graphics. Especially focused on basics of soft-body mechanics.
 
 ## How to run
 Until I set up Docker or WASM, `cargo run` (cargo required).
@@ -10,9 +10,8 @@ Until I set up Docker or WASM, `cargo run` (cargo required).
 - [ ] CI setup
 - [x] Drawing basic entities
 - [x] Basic rigid body dynamics
-- [ ] User interaction to create/delete entities
-- [ ] User interaction to move entities
-- [ ] Soft-body generation
+- [x] User interaction to create/delete entities
 - [ ] Soft-body dynamics
+- [ ] Soft-body generation
 - [ ] Soft-body user interaction
 - [ ] Understanding Rust
