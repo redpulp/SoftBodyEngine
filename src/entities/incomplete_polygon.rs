@@ -1,6 +1,6 @@
-use super::super::utils::conversion::*;
 use super::super::utils::math::*;
 use super::polygon::*;
+use super::segment::*;
 use macroquad::prelude::*;
 
 const STD_COLOR: Color = WHITE;
@@ -21,49 +21,38 @@ impl IncompletePolygon {
     pub fn draw(&self, polygons: &Vec<Polygon>) {
         self.points.iter().enumerate().for_each(|(i, point)| {
             let is_last_segment = i == self.points.len() - 1;
-            let is_on_end = self.is_on_end();
+            let is_on_end = self.is_on_start();
             let mouse_position = vec2(mouse_position().0, mouse_position().1);
 
             let ending_point = if !is_last_segment {
                 self.points[i + 1]
             } else {
                 if is_on_end {
+                    // Snap to start if close enough
                     self.points[0]
                 } else {
                     mouse_position
                 }
             };
 
-            if !is_last_segment {
-                draw_line(
-                    point[0],
-                    point[1],
-                    ending_point[0],
-                    ending_point[1],
-                    2.,
-                    STD_COLOR,
-                );
+            let drawing_color = if !is_last_segment {
+                STD_COLOR
             } else {
                 if self.is_intersecting_with_polygons(polygons) {
-                    draw_line(
-                        point[0],
-                        point[1],
-                        ending_point[0],
-                        ending_point[1],
-                        2.,
-                        ERROR_COLOR,
-                    );
+                    ERROR_COLOR
                 } else {
-                    draw_line(
-                        point[0],
-                        point[1],
-                        ending_point[0],
-                        ending_point[1],
-                        2.,
-                        OK_COLOR,
-                    );
+                    OK_COLOR
                 }
-            }
+            };
+
+            draw_line(
+                point[0],
+                point[1],
+                ending_point[0],
+                ending_point[1],
+                2.,
+                drawing_color,
+            );
         });
     }
 
@@ -72,10 +61,10 @@ impl IncompletePolygon {
             polygons.iter().any(|poly| {
                 poly.segments().iter().any(|segment| {
                     do_segments_intersect(
-                        &vec2_to_segments(
-                            self.points[self.points.len() - 1],
-                            vec2(mouse_position().0, mouse_position().1),
-                        ),
+                        &Segment {
+                            p1: self.points[self.points.len() - 1],
+                            p2: vec2(mouse_position().0, mouse_position().1),
+                        },
                         &segment,
                     )
                 })
@@ -85,18 +74,17 @@ impl IncompletePolygon {
         }
     }
 
-    pub fn is_on_end(&self) -> bool {
-        if self.points.len() > 1 {
-            let mouse_ending_distance =
-                (vec2(mouse_position().0, mouse_position().1) - self.points[0]).length();
-            mouse_ending_distance < 30.
+    // Checking if the mouse is close to the starting point
+    pub fn is_on_start(&self) -> bool {
+        if self.points.len() > 2 {
+            (vec2(mouse_position().0, mouse_position().1) - self.points[0]).length() < 30.
         } else {
             false
         }
     }
 
     pub fn add_point(&mut self, pos: Vec2, polygons: &mut Vec<Polygon>) {
-        if !self.is_on_end() {
+        if !self.is_on_start() {
             self.points.push(pos);
         } else {
             polygons.push(Polygon::new(

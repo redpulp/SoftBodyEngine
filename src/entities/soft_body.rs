@@ -242,6 +242,6 @@ impl SoftBody {
     pub fn handle_collision(&mut self, polygon: &Polygon) {
         self.points
             .iter_mut()
-            .for_each(|point| point.handle_collision(polygon));
+            .for_each(|point| handle_point_polygon_collision(point, polygon));
     }
 }

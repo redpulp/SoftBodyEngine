@@ -1,4 +1,3 @@
-use egui::{color::*, *};
 use entities::*;
 use macroquad::prelude::*;
 use ui::*;
@@ -22,76 +21,14 @@ pub mod utils {
 async fn main() {
     let mut creating_entity: Entities = Entities::Dot;
 
-    let buttons_window_dimensions = (
-        BUTTON_SIZE + BUTTON_OFFSET,
-        ([1].len() as f32 * BUTTON_SIZE) + BUTTON_OFFSET,
-    );
+    let buttons_window_dimensions = (215., 135.);
 
     let mut polygons: Vec<polygon::Polygon> = [polygon::Polygon::generate_floor()].to_vec();
     let mut drawing_polygon = incomplete_polygon::IncompletePolygon::new();
 
     let mut soft_body = soft_body::SoftBody::new(screen_width() / 2., screen_height() / 2.);
 
-    // Forgive this ugly button setup
-    let mut polygon_button = egui::text::LayoutJob::default();
-    polygon_button.append(
-        "⬜ ",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::from_rgb(99, 75, 255),
-            ..Default::default()
-        },
-    );
-    polygon_button.append(
-        "Create Polygon",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::WHITE,
-            ..Default::default()
-        },
-    );
-
-    let mut reset_button = egui::text::LayoutJob::default();
-    reset_button.append(
-        "⟲ ",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::RED,
-            ..Default::default()
-        },
-    );
-    reset_button.append(
-        "Reset Canvas",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::WHITE,
-            ..Default::default()
-        },
-    );
-
-    let mut soft_body_button = egui::text::LayoutJob::default();
-    soft_body_button.append(
-        "⭕ ",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::YELLOW,
-            ..Default::default()
-        },
-    );
-    soft_body_button.append(
-        "Create Soft-body",
-        0.0,
-        TextFormat {
-            style: TextStyle::Body,
-            color: Color32::WHITE,
-            ..Default::default()
-        },
-    );
+    let [polygon_button, stop_drawing_button, reset_button, soft_body_button] = spawn_buttons();
 
     loop {
         clear_background(BLACK);
@@ -111,10 +48,7 @@ async fn main() {
                     // ui.add(egui::Slider::new(&mut scalar, 0..=12).suffix("°"));
 
                     if is_creating_polygon {
-                        if ui
-                            .button(RichText::new("❌ Stop Drawing").color(Color32::RED))
-                            .clicked()
-                        {
+                        if ui.button(stop_drawing_button.clone()).clicked() {
                             drawing_polygon.reset();
                         }
                     } else {

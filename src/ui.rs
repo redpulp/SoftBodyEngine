@@ -1,4 +1,5 @@
 use super::entities::*;
+use egui::text::{LayoutJob, TextFormat, TextStyle};
 use macroquad::prelude::*;
 
 pub enum Entities {
@@ -48,5 +49,91 @@ pub fn spawn_entity(
     }
 }
 
-pub const BUTTON_SIZE: f32 = 150.;
-pub const BUTTON_OFFSET: f32 = 20.;
+pub fn spawn_buttons() -> [LayoutJob; 4] {
+    let mut polygon_button = LayoutJob::default();
+    polygon_button.append(
+        "⬜ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::from_rgb(99, 75, 255),
+            ..Default::default()
+        },
+    );
+    polygon_button.append(
+        "Create Polygon",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    let mut stop_drawing_button = egui::text::LayoutJob::default();
+    stop_drawing_button.append(
+        "❌ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::RED,
+            ..Default::default()
+        },
+    );
+    stop_drawing_button.append(
+        "Stop Drawing",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::RED,
+            ..Default::default()
+        },
+    );
+
+    let mut reset_button = egui::text::LayoutJob::default();
+    reset_button.append(
+        "⟲ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::RED,
+            ..Default::default()
+        },
+    );
+    reset_button.append(
+        "Reset Canvas",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    let mut soft_body_button = egui::text::LayoutJob::default();
+    soft_body_button.append(
+        "⭕ ",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::YELLOW,
+            ..Default::default()
+        },
+    );
+    soft_body_button.append(
+        "Create Soft-body",
+        0.0,
+        TextFormat {
+            style: TextStyle::Heading,
+            color: egui::Color32::WHITE,
+            ..Default::default()
+        },
+    );
+
+    return [
+        polygon_button,
+        stop_drawing_button,
+        reset_button,
+        soft_body_button,
+    ];
+}

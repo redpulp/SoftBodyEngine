@@ -57,8 +57,8 @@ impl Dot {
     }
 
     pub fn push(&mut self, push_vec: &Vec2) {
-        // self.acceleration += *push_vec;
         if !self.freeze {
+            self.acceleration += *push_vec;
             self.vel += *push_vec;
             self.pos += *push_vec;
         }
@@ -134,21 +134,5 @@ impl Dot {
         }
 
         None
-    }
-
-    pub fn handle_collision(&mut self, polygon: &Polygon) {
-        match self.get_push_vector(polygon) {
-            None => (),
-            Some(vector) => {
-                self.push(&vector);
-            }
-        }
-    }
-
-    pub fn handle_point_collision(&mut self, collision_point: &Dot) {
-        let distance = self.pos - collision_point.pos;
-        if distance.length() < self.radius * 2.5 && distance.length() > 0. {
-            self.push(&(distance.normalize() * self.radius));
-        }
     }
 }

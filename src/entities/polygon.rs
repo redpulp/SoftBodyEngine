@@ -61,7 +61,12 @@ impl Polygon {
     pub fn draw(&self) {
         self.segments().iter().for_each(|segment| {
             draw_line(
-                segment.x1, segment.y1, segment.x2, segment.y2, 2., self.color,
+                segment.p1.x,
+                segment.p1.y,
+                segment.p2.x,
+                segment.p2.y,
+                2.,
+                self.color,
             );
         });
     }
@@ -70,9 +75,9 @@ impl Polygon {
         self.points
             .iter()
             .enumerate()
-            .map(|(i, point)| {
-                let point2 = self.points[if i == self.points.len() - 1 { 0 } else { i + 1 }];
-                coords_to_segment(*point, point2)
+            .map(|(i, p1)| {
+                let p2 = self.points[if i == self.points.len() - 1 { 0 } else { i + 1 }];
+                coords_to_segment(*p1, p2)
             })
             .collect()
     }
