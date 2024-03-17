@@ -1,0 +1,20 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  generate-wasm-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build --target wasm32-unknown-unknown
+          args: --release --all-features
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wasm-build
+          path: target/wasm32-unknown-unknown/debug/soft_body_simulation.wasm
