@@ -1,0 +1,9 @@
+[package]
+name = "soft_body_simulation"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+macroquad = "0.3"
+egui = "0.16.1"
+egui-macroquad = "0.8.0"

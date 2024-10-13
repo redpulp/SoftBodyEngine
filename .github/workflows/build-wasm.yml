@@ -1,0 +1,24 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  generate-wasm-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: rustup target add wasm32-unknown-unknown
+      - run: cargo build --target wasm32-unknown-unknown
+      - run: cp target/wasm32-unknown-unknown/debug/soft_body_simulation.wasm build/
+      - uses: jsmrcaga/action-netlify-deploy@v1.1.0
+        with:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_DEPLOY_TO_PROD: true
+      # - uses: actions/upload-artifact@v2
+      #   with:
+      #     name: wasm-build
+      #     path: target/wasm32-unknown-unknown/debug/soft_body_simulation.wasm
